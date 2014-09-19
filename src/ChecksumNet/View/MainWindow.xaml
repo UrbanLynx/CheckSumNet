@@ -4,22 +4,35 @@
         xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:this="clr-namespace:ChecksumNet.ViewModel"
         Title="Checksum Net"
-        DataContext="{x:Static this:MainViewModel.Instance}"
-        WindowState="Maximized">
+        DataContext="{x:Static this:MainViewModel.Instance}">
+        <!--WindowState="Maximized"-->
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
         <Menu>
             <MenuItem Header="File">
+                <MenuItem Header="Login" />
+                <MenuItem Header="Connect" />
                 <MenuItem Header="Open" />
             </MenuItem>
             <MenuItem Header="Help">
               <MenuItem Header="About Checksum Net"></MenuItem>
             </MenuItem>
         </Menu>
-        <Label Grid.Row="1" Content="{Binding LabelText}"></Label>
+        <Button Grid.Row="0" Content="Login"></Button>
+        <Button Grid.Row="1" Content="Connect"></Button>
+        <Button Grid.Row="2" Content="Open File ..."></Button>
+        <GroupBox Grid.Row="3" Header="Компьютер 1">
+            <Label Content="123"></Label>
+        </GroupBox>
+        <GroupBox Grid.Row="4" Header="Компьютер 2">
+            <Label Content=""></Label>
+        </GroupBox>
     </Grid>
 </Window>

@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChecksumNet", "ChecksumNet\ChecksumNet.csproj", "{1B3A14CD-6EAD-4EEF-BCFE-185DF28D1DA4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChecksumNet.View", "ChecksumNet\ChecksumNet.View.csproj", "{1B3A14CD-6EAD-4EEF-BCFE-185DF28D1DA4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChecksumNet.Model", "ChecksumNet.Model\ChecksumNet.Model.csproj", "{6765AEB6-706C-4B42-87DF-48CD0D3B00FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChecksumNet.Console", "ChecksumNet.Console\ChecksumNet.Console.csproj", "{CDC39B0C-1EAE-4A5B-82CA-8AAC6F35949B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{1B3A14CD-6EAD-4EEF-BCFE-185DF28D1DA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B3A14CD-6EAD-4EEF-BCFE-185DF28D1DA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B3A14CD-6EAD-4EEF-BCFE-185DF28D1DA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6765AEB6-706C-4B42-87DF-48CD0D3B00FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6765AEB6-706C-4B42-87DF-48CD0D3B00FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6765AEB6-706C-4B42-87DF-48CD0D3B00FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6765AEB6-706C-4B42-87DF-48CD0D3B00FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDC39B0C-1EAE-4A5B-82CA-8AAC6F35949B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDC39B0C-1EAE-4A5B-82CA-8AAC6F35949B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDC39B0C-1EAE-4A5B-82CA-8AAC6F35949B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDC39B0C-1EAE-4A5B-82CA-8AAC6F35949B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
