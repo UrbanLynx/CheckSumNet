@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,8 +12,13 @@ namespace ChecksumNet.Console
     {
         static void Main(string[] args)
         {
-            var provider = new NetProvider();
-            provider.SetConnection();
+            var manager = new Manager();
+            manager.SetConnection();
+            manager.StartListening();
+
+            string path = @"D:\aa.txt";
+            if(File.Exists(path))
+                manager.NewChecksum(path);
             System.Console.ReadLine();
         }
     }
