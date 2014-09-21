@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using ChecksumNet.Model;
 
 namespace ChecksumNet.ViewModel
 {
@@ -14,7 +15,8 @@ namespace ChecksumNet.ViewModel
         private static volatile MainViewModel _instance;
         private static object _syncRoot = new Object();
 
-        
+        private Manager manager;
+        private string filename;
 
         #endregion
 
@@ -44,9 +46,19 @@ namespace ChecksumNet.ViewModel
 
         private void Creator()
         {
+            manager = new Manager();
+            manager.DataUpdate += DataChanged;
         }
 
-        
+        private void DataChanged()
+        {
+            OnPropertyChanged("RemoteIP");
+            OnPropertyChanged("Filename");
+            OnPropertyChanged("MyHash");
+            OnPropertyChanged("RemoteHash");
+        }
+
+
         public string OpenFile()
         {
             /*var dlg = new Microsoft.Win32.OpenFileDialog();
@@ -66,17 +78,50 @@ namespace ChecksumNet.ViewModel
 
         #region Properties
 
-        public string LabelText
+        public string RemoteIP
         {
-            get { return ""; }
+            set { OnPropertyChanged("RemoteIP");}
+            get
+            {
+                if (manager.RemoteHost != null) return manager.RemoteHost.IP.ToString();
+                return "Нет соединения";
+            }
         }
+        public string Filename
+        {
+            get { return filename; }
+            set { filename = value; OnPropertyChanged("Filename"); }
+        }
+
+        public string MyHash
+        {
+            set { OnPropertyChanged("MyHash"); }
+            get
+            {
+                if (manager.Sender.Checksum != null)
+                    return BitConverter.ToString(manager.Sender.Checksum).Replace("-", "").ToLower();
+                return "Файл не выбран";
+            }
+        }
+
+        public string RemoteHash
+        {
+            set { OnPropertyChanged("RemoteHash"); }
+            get
+            {
+                if (manager.RemoteHost != null && manager.RemoteHost.Checksum != null)
+                    return BitConverter.ToString(manager.RemoteHost.Checksum).Replace("-", "").ToLower();
+                return "Удаленный ПК не выбрал файл";
+            }
+        }
+        
         #endregion
 
         #region Commands
 
-        #region OpenCom
+        #region Login
 
-        void OpenComExecute()
+        void LoginExecute()
         {
             /*var dlg = new Microsoft.Win32.OpenFileDialog();
             var result = dlg.ShowDialog();
@@ -89,13 +134,61 @@ namespace ChecksumNet.ViewModel
             }*/
         }
 
-        bool CanOpenComExecute()
+        bool CanLoginExecute()
         {
             return true;
         }
-        public ICommand OpenCom
+        public ICommand LoginCommand
         {
-            get { return new RelayCommand(param => this.OpenComExecute(), param => this.CanOpenComExecute()); }
+            get { return new RelayCommand(param => this.LoginExecute(), param => this.CanLoginExecute()); }
+        }
+
+        
+
+        #endregion
+
+        #region Connect
+
+        void ConnectExecute()
+        {
+            manager.SetConnection();
+            manager.StartListening();
+        }
+
+        bool CanConnectExecute()
+        {
+            return true;
+        }
+        public ICommand ConnectCommand
+        {
+            get { return new RelayCommand(param => this.ConnectExecute(), param => this.CanConnectExecute()); }
+        }
+
+
+
+        #endregion
+
+        #region Browse
+
+        void BrowseExecute()
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog();
+            var result = dlg.ShowDialog();
+
+            if (result == true)
+            {
+                Filename = dlg.FileName;
+                manager.NewChecksum(Filename);
+            }
+        }
+
+        bool CanBrowseExecute()
+        {
+            return true;
+        }
+        public ICommand BrowseCommand
+        {
+            get { return new RelayCommand(param => this.BrowseExecute(), param => this.CanBrowseExecute()); }
         }
 
         

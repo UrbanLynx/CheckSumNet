@@ -4,7 +4,10 @@ namespace ChecksumNet.Model
 {
     public class HostData
     {
-        public HostData() { }
+        public HostData()
+        {
+            Checksum = null;
+        }
         public HostData(EndPoint ip)
         {
             IP = ip;

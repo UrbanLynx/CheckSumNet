@@ -19,6 +19,7 @@ namespace ChecksumNet.Model
         {
             provider.SetConnection();
             RemoteHost = new HostData(provider.RemoteEP);
+            DataUpdate();
         }
 
         public void StartListening()
@@ -31,6 +32,7 @@ namespace ChecksumNet.Model
             Sender.Checksum = Checksum.CalculateChecksum(filename);
             //CompareChecksums();
             SendData(Sender.Checksum);
+            DataUpdate();
         }
 
         private void SendData(byte[] data)
@@ -40,8 +42,9 @@ namespace ChecksumNet.Model
 
         public void ReceiveData(byte[] data)
         {
-                RemoteHost.Checksum = data;
-                CompareChecksums();
+            RemoteHost.Checksum = data;
+            CompareChecksums();
+            DataUpdate();
         }
         public void CompareChecksums()
         {
@@ -50,5 +53,9 @@ namespace ChecksumNet.Model
 
         public HostData Sender { get; set; }
         public HostData RemoteHost { get; set; }
+
+        public delegate void UpdateData();
+
+        public event UpdateData DataUpdate;
     }
 }

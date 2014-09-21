@@ -21,13 +21,15 @@ namespace ChecksumNet.Model
 
     public class NetProvider
     {
+        private Socket listener;
+
         public NetProvider()
         {
             IsServerActive = false;
 
-            IPHostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
-            LocalEP = new IPEndPoint(ipAddress, 4800);
+            //IPHostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
+            //IPAddress ipAddress = ipHostInfo.AddressList[0];
+            //LocalEP = new IPEndPoint(ipAddress, 4800);
 
         }
 
@@ -52,6 +54,10 @@ namespace ChecksumNet.Model
         {
             //Start server
             const int Port = 4800;
+            IPHostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
+            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            LocalEP = new IPEndPoint(ipAddress, Port);
+
             var server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             Console.Write("Running server..." + Environment.NewLine);
             server.Bind(new IPEndPoint(IPAddress.Any, Port));
@@ -73,6 +79,8 @@ namespace ChecksumNet.Model
                 server.SendTo(new byte[] {2}, tempRemoteEP);
 
                 RemoteEP = tempRemoteEP;
+                server.Shutdown(SocketShutdown.Both);
+                server.Close();
                 return; //TODO: ждать пока IsServerActive=false или выходить по времени
             }
         }
@@ -125,6 +133,9 @@ namespace ChecksumNet.Model
                     //Don't try any more networks
 
                     RemoteEP = tempRemoteEP;
+                    LocalEP = client.LocalEndPoint;
+                    client.Shutdown(SocketShutdown.Both);
+                    client.Close();
                     return true;
                     //break;
                 }
@@ -183,19 +194,27 @@ namespace ChecksumNet.Model
         public void StartListening()
         {
             // Create a TCP/IP socket.
-            var listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             // Bind the socket to the local endpoint and listen for incoming connections.
             try
             {
+                listener.Blocking = false;
                 listener.Bind(LocalEP);
                 listener.Listen(100);
-                listener.BeginAccept(AcceptCallback,listener);
+
+                PerformListen(listener);
+                //listener.BeginAccept(AcceptCallback,listener);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        private void PerformListen(Socket listener)
+        {
+            listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
         }
 
         public void AcceptCallback(IAsyncResult ar)
@@ -219,13 +238,32 @@ namespace ChecksumNet.Model
 
             // Read data from the client socket. 
             int bytesRead = handler.EndReceive(ar);
-            
-            handler.Shutdown(SocketShutdown.Both);
-            handler.Close();
-
             var shortenBuffer = new byte[bytesRead];
             Array.Copy(state.buffer, 0, shortenBuffer, 0, bytesRead);
             onDataReceived(shortenBuffer);
+            
+            CloseNode(handler, true);
+        }
+
+        public void CloseNode(Socket handler, bool acceptMoreConnections)
+        {
+            try
+            {
+                if (handler != null)
+                {
+                    handler.Shutdown(SocketShutdown.Both);
+                    handler.Close();
+                    handler.Dispose();
+                    handler = null;
+                }
+                
+                if (acceptMoreConnections)
+                    PerformListen(listener);
+            }
+            catch (Exception e)
+            {
+                // exc
+            }
         }
         
     }
