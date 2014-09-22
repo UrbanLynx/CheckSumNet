@@ -80,7 +80,7 @@ namespace ChecksumNet.ViewModel
 
         public string RemoteIP
         {
-            set { OnPropertyChanged("RemoteIP");}
+            set { OnPropertyChanged("RemoteIP"); }
             get
             {
                 if (manager.RemoteHost != null) return manager.RemoteHost.IP.ToString();
@@ -123,15 +123,12 @@ namespace ChecksumNet.ViewModel
 
         void LoginExecute()
         {
-            /*var dlg = new Microsoft.Win32.OpenFileDialog();
-            var result = dlg.ShowDialog();
 
-            if (result == true)
+            var logView = new ChecksumNet.View.LoginView
             {
-                string filename = dlg.FileName;
-                _textSettings = _fileManager.LoadFrom(filename);
-
-            }*/
+                DataContext = new LoginVM()
+            };
+            logView.Show();
         }
 
         bool CanLoginExecute()

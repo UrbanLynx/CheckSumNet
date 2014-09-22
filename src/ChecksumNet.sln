@@ -1,13 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChecksumNet.View", "ChecksumNet\ChecksumNet.View.csproj", "{1B3A14CD-6EAD-4EEF-BCFE-185DF28D1DA4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChecksumNet.Model", "ChecksumNet.Model\ChecksumNet.Model.csproj", "{6765AEB6-706C-4B42-87DF-48CD0D3B00FD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChecksumNet.Console", "ChecksumNet.Console\ChecksumNet.Console.csproj", "{CDC39B0C-1EAE-4A5B-82CA-8AAC6F35949B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{811E2C2D-1284-4786-8AC8-95AAD46CE0C2}"
+	ProjectSection(SolutionItems) = preProject
+		ChecksumNet\ViewModel\Logins.txt = ChecksumNet\ViewModel\Logins.txt
+		ChecksumNet\ViewModel\Passwords.txt = ChecksumNet\ViewModel\Passwords.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

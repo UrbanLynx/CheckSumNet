@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Authentication.cs" />
     <Compile Include="Checksum.cs" />
     <Compile Include="HostData.cs" />
     <Compile Include="Manager.cs" />
