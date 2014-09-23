@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using ChecksumNet.View;
+﻿using System.Windows.Input;
 using ChecksumNet.Model;
+using FunctionalFun.UI;
 
 namespace ChecksumNet.ViewModel
 {
@@ -13,8 +8,10 @@ namespace ChecksumNet.ViewModel
     {
         #region Members
 
-        public Authentication authentication = new Authentication();;
+        public Manager manager = new Manager();
 
+        private string _login;
+        private string _password;
         #endregion
 
         #region Constructors   
@@ -25,35 +22,13 @@ namespace ChecksumNet.ViewModel
 
         #region Methods
 
-       /* private void Creator()
-        {
-            manager = new Manager();
-            manager.DataUpdate += DataChanged;
-        }
-
-        private void DataChanged()
+        /*private void DataChanged()
         {
             OnPropertyChanged("RemoteIP");
             OnPropertyChanged("Filename");
             OnPropertyChanged("MyHash");
             OnPropertyChanged("RemoteHash");
         }
-
-
-        public string OpenFile()
-        {
-            / *var dlg = new Microsoft.Win32.OpenFileDialog();
-            var result = dlg.ShowDialog();
-
-            if (result == true)
-            {
-                string filename = dlg.FileName;
-                _textSettings = _fileManager.LoadFrom(filename);
-                return _textSettings.Text;
-            }* /
-            return null;
-        }
-
        */
         #endregion
 
@@ -61,26 +36,29 @@ namespace ChecksumNet.ViewModel
 
         public string Login
         {
-            set
-            {
-                if (value == null) throw new ArgumentNullException("value");
-                OnPropertyChanged("Login");
-            }
-            get { return null; } 
-
+            get { return _login; }
+            set { _login = value; OnPropertyChanged("Login"); }
         }
 
         public string Password
         {
+            get { return _password; }
+            set { _password = value; OnPropertyChanged("Password"); }           
+        }
+
+        public string AuthResult
+        {
             set
+            { OnPropertyChanged("AuthResult");}
+            get
             {
-                if (value == null) throw new ArgumentNullException("value");
-                OnPropertyChanged("Password");
+                if (manager.isAuthentication == true) 
+                    return "Вход произведен";
+                return "Вход не выполнен";
             }
-            get { return null; } 
-        }  
-           
-        
+
+        }
+                 
         #endregion
 
         #region Commands
@@ -89,8 +67,7 @@ namespace ChecksumNet.ViewModel
 
         void AuthenticationExecute()
         {
-            
-
+            manager.Comare(Login, Password);
         }
 
         bool CanAuthenticationExecute()

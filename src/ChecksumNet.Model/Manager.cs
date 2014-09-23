@@ -60,9 +60,11 @@ namespace ChecksumNet.Model
 
         private Authentication authentication = new Authentication();
 
+        public bool isAuthentication = false;
+
         public void Comare(string inputLogin, string password)
         {
-            bool isAuthentication = authentication.AuthenticationCompare(inputLogin, password);
+            isAuthentication = authentication.AuthenticationCompare(inputLogin, password);
 
         }
 

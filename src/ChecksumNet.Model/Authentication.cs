@@ -11,7 +11,7 @@ namespace ChecksumNet.Model
     {
         public bool AuthenticationCompare(string inputLogin, string password)
         {
-            using (StreamReader sr = File.OpenText("Logins.txt"))
+            using (var sr = File.OpenText("Logins.txt"))
             {
                 string str = "";
                 string[] masStr;   
@@ -19,7 +19,7 @@ namespace ChecksumNet.Model
                 while ((str = sr.ReadLine()) != null)
                 {
                     masStr = str.Split('\t');
-                    if ((String.Compare(inputLogin, masStr[0]) == 0) && (String.Compare(inputLogin, masStr[1]) == 0))
+                    if ((String.Compare(inputLogin, masStr[0]) == 0) && (String.Compare(password, masStr[1]) == 0))
                     {
                         return true;
                     }

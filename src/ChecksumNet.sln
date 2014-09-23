@@ -9,10 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChecksumNet.Model", "Checks
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChecksumNet.Console", "ChecksumNet.Console\ChecksumNet.Console.csproj", "{CDC39B0C-1EAE-4A5B-82CA-8AAC6F35949B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{811E2C2D-1284-4786-8AC8-95AAD46CE0C2}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{07A827B4-DD6B-4D9A-88D1-3C1A55BB8B14}"
 	ProjectSection(SolutionItems) = preProject
-		ChecksumNet\ViewModel\Logins.txt = ChecksumNet\ViewModel\Logins.txt
-		ChecksumNet\ViewModel\Passwords.txt = ChecksumNet\ViewModel\Passwords.txt
+		ChecksumNet\bin\Debug\Logins.txt = ChecksumNet\bin\Debug\Logins.txt
 	EndProjectSection
 EndProject
 Global

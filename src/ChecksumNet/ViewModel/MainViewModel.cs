@@ -117,6 +117,7 @@ namespace ChecksumNet.ViewModel
         
         #endregion
 
+
         #region Commands
 
         #region Login
@@ -124,7 +125,7 @@ namespace ChecksumNet.ViewModel
         void LoginExecute()
         {
 
-            var logView = new ChecksumNet.View.LoginView
+            var logView = new View.LoginView
             {
                 DataContext = new LoginVM()
             };
