@@ -10,6 +10,8 @@ namespace ChecksumNet.ViewModel
 
         public Manager manager = new Manager();
 
+        private string _filename;
+
         private string _login;
         private string _password;
         #endregion
