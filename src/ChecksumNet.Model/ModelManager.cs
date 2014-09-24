@@ -32,7 +32,7 @@ namespace ChecksumNet.Model
         public void NewChecksum(string filename)
         {
             LocalHost.Checksum = Checksum.CalculateChecksum(filename);
-            //CompareChecksums();
+            CompareChecksums();
             SendData(LocalHost.Checksum);
             DataUpdate();
         }
@@ -51,7 +51,17 @@ namespace ChecksumNet.Model
 
         public void CompareChecksums()
         {
-            Console.WriteLine("MD5 of remote computer: "+BitConverter.ToString(RemoteHost.Checksum).Replace("-","").ToLower());
+            if (RemoteHost != null && RemoteHost.Checksum != null && LocalHost != null && LocalHost.Checksum != null)
+            {
+                IsChecksumsEqual = (BitConverter.ToString(LocalHost.Checksum) ==
+                                   BitConverter.ToString(RemoteHost.Checksum));
+            }
+            else
+            {
+                IsChecksumsEqual = false;
+            }
+            
+            //Console.WriteLine("MD5 of remote computer: "+BitConverter.ToString(RemoteHost.Checksum).Replace("-","").ToLower());
         }
 
         public bool TryLogin(string username, string password)
@@ -62,6 +72,7 @@ namespace ChecksumNet.Model
         public HostData LocalHost { get; set; }
         public HostData RemoteHost { get; set; }
         public bool IsConnected { get; set; }
+        public bool IsChecksumsEqual { get; set; }
 
         public delegate void UpdateData();
         public event UpdateData DataUpdate;

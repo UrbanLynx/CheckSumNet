@@ -59,6 +59,7 @@ namespace ChecksumNet.ViewModel
             OnPropertyChanged("Filename");
             OnPropertyChanged("MyHash");
             OnPropertyChanged("RemoteHash");
+            OnPropertyChanged("IsChecksumsEqual");
         }
 
         
@@ -120,7 +121,12 @@ namespace ChecksumNet.ViewModel
             get { return isLogedIn; }
             set { isLogedIn = value; OnPropertyChanged("RemoteHash"); }
         }
-        
+
+        public bool IsChecksumsEqual
+        {
+            get { return Manager.IsChecksumsEqual; }
+            set { OnPropertyChanged("IsChecksumsEqual"); }
+        }
         #endregion
 
 
