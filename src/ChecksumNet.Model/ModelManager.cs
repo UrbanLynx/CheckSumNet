@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace ChecksumNet.Model
 {
-    public class Manager
+    public class ModelManager
     {
         private NetProvider provider = new NetProvider();
+        private Authentication authentication = new Authentication();
 
-        public Manager()
+        public ModelManager()
         {
             LocalHost = new HostData();
         }
@@ -20,6 +21,7 @@ namespace ChecksumNet.Model
             provider.SetConnection();
             LocalHost = new HostData(provider.LocalEP);
             RemoteHost = new HostData(provider.RemoteEP);
+            IsConnected = true;
             DataUpdate();
         }
 
@@ -47,27 +49,24 @@ namespace ChecksumNet.Model
             CompareChecksums();
             DataUpdate();
         }
+
         public void CompareChecksums()
         {
             Console.WriteLine("MD5 of remote computer: "+BitConverter.ToString(RemoteHost.Checksum).Replace("-","").ToLower());
         }
 
+        public bool TryLogin(string username, string password)
+        {
+            return authentication.Login(username, password);
+        }
+    
         public HostData LocalHost { get; set; }
         public HostData RemoteHost { get; set; }
+        public bool IsConnected { get; set; }
 
         public delegate void UpdateData();
-
         public event UpdateData DataUpdate;
 
-        private Authentication authentication = new Authentication();
-
-        public bool isAuthentication = false;
-
-        public void Comare(string inputLogin, string password)
-        {
-            isAuthentication = authentication.AuthenticationCompare(inputLogin, password);
-
-        }
 
     }
 }

@@ -1,33 +1,50 @@
 ﻿<Window
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"      
-        xmlns:ui="clr-namespace:FunctionalFun.UI" x:Class="ChecksumNet.View.LoginView"      
-        Title="LoginView" Height="220" Width="280">
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:viewModel="clr-namespace:ChecksumNet.ViewModel"
+    x:Class="ChecksumNet.View.LoginView"
+    Title="LoginView" Height="180" Width="330">
+    <Window.Resources>
+        <Style TargetType="{x:Type Label}">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        <Style TargetType="{x:Type PasswordBox}">
+        <Setter Property="Margin" Value="5"/>
+        </Style>
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="3"/>
+        </Style>
+    </Window.Resources>
     <Grid>
-
-
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" MinWidth="131"/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition />
+            <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="25"/>
-            <RowDefinition Height="Auto" MinHeight="25"/>
-            <RowDefinition Height="Auto" MinHeight="52"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Label Content="Имя пользователя" Margin="10,10,10,0" VerticalAlignment="Top" Height="26"/>
-        <Label Content="Пароль" HorizontalAlignment="Left" Margin="10,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="76" Height="26"/>
-
-        <TextBox Grid.Column="1"  HorizontalAlignment="Left" Height="23" Margin="10,13,0,0" TextWrapping="Wrap" Text="{Binding Login}" VerticalAlignment="Top" Width="115"/>
-        <!--<TextBox Grid.Column="1"   HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" Text="{Binding MyPassword}" VerticalAlignment="Top" Width="120" Grid.Row="1"/>-->
-
-        <Button Content="Войти" Command="{Binding AuthenticationCommand}"  Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" Grid.Row="2" VerticalAlignment="Top" Width="111"/>
-        <Label HorizontalAlignment="Left" Content="{Binding AuthResult, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged }"  Margin="10,64,0,-50" Grid.Row="2" VerticalAlignment="Top" Width="121" Grid.Column="1" Height="42"/>
-
-        <Button Content="Выход" Command="{Binding AuthenticationCommand}"  Grid.Column="1" HorizontalAlignment="Left" Margin="10,37,0,-6" Grid.Row="2" VerticalAlignment="Top" Width="111"/>
-
+        
+        <Label Content="Имя пользователя"/>
+        <TextBox Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Username, Mode=TwoWay}"/>
+        
+        <Label Content="Пароль" Grid.Row="1"/>
         <PasswordBox x:Name="passwordBox"
-		ui:PasswordBoxAssistant.BindPassword="true"  ui:PasswordBoxAssistant.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10,10,11,4" Grid.Column="1" Grid.Row="1" />
+                     viewModel:PasswordBoxAssistant.BindPassword="true"
+                     viewModel:PasswordBoxAssistant.BoundPassword="{Binding Password, Mode=TwoWay}"
+                     Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" />
+
+        <Label Content="{Binding AuthResult}" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"/>
+
+        <Button Content="Войти" Command="{Binding Authenticate}" Grid.Column="1" Grid.Row="3"/>
+        <Button Content="Отмена" Command="{Binding Cancel}" Grid.Column="2" Grid.Row="3"/>
 
     </Grid>
 </Window>

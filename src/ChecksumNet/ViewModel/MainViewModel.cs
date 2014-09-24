@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using ChecksumNet.Model;
+using ChecksumNet.View;
 
 namespace ChecksumNet.ViewModel
 {
@@ -15,8 +17,8 @@ namespace ChecksumNet.ViewModel
         private static volatile MainViewModel _instance;
         private static object _syncRoot = new Object();
 
-        private Manager manager;
         private string filename;
+        private bool isLogedIn = false;
 
         #endregion
 
@@ -46,8 +48,8 @@ namespace ChecksumNet.ViewModel
 
         private void Creator()
         {
-            manager = new Manager();
-            manager.DataUpdate += DataChanged;
+            Manager = new ModelManager();
+            Manager.DataUpdate += DataChanged;
         }
 
         private void DataChanged()
@@ -58,16 +60,20 @@ namespace ChecksumNet.ViewModel
             OnPropertyChanged("MyHash");
             OnPropertyChanged("RemoteHash");
         }
-       
+
+        
         #endregion
 
         #region Properties
+
+        public ModelManager Manager { get; set; }
+
         public string LocalIP
         {
             set { OnPropertyChanged("LocalIP"); }
             get
             {
-                if (manager.LocalHost != null && manager.LocalHost.IP != null) return manager.LocalHost.IP.ToString();
+                if (Manager.LocalHost != null && Manager.LocalHost.IP != null) return Manager.LocalHost.IP.ToString();
                 return "";
             }
         }
@@ -77,7 +83,7 @@ namespace ChecksumNet.ViewModel
             set { OnPropertyChanged("RemoteIP"); }
             get
             {
-                if (manager.RemoteHost != null && manager.RemoteHost.IP != null) return manager.RemoteHost.IP.ToString();
+                if (Manager.RemoteHost != null && Manager.RemoteHost.IP != null) return Manager.RemoteHost.IP.ToString();
                 return "Нет соединения";
             }
         }
@@ -89,24 +95,30 @@ namespace ChecksumNet.ViewModel
 
         public string MyHash
         {
-            set { OnPropertyChanged("MyHash"); }
             get
             {
-                if (manager.LocalHost.Checksum != null)
-                    return BitConverter.ToString(manager.LocalHost.Checksum).Replace("-", "").ToLower();
+                if (Manager.LocalHost.Checksum != null)
+                    return BitConverter.ToString(Manager.LocalHost.Checksum).Replace("-", "").ToLower();
                 return "Файл не выбран";
             }
+            set { OnPropertyChanged("MyHash"); }
         }
 
         public string RemoteHash
         {
-            set { OnPropertyChanged("RemoteHash"); }
             get
             {
-                if (manager.RemoteHost != null && manager.RemoteHost.Checksum != null)
-                    return BitConverter.ToString(manager.RemoteHost.Checksum).Replace("-", "").ToLower();
+                if (Manager.RemoteHost != null && Manager.RemoteHost.Checksum != null)
+                    return BitConverter.ToString(Manager.RemoteHost.Checksum).Replace("-", "").ToLower();
                 return "Удаленный ПК не выбрал файл";
             }
+            set { OnPropertyChanged("RemoteHash"); }
+        }
+
+        public bool IsLogedIn
+        {
+            get { return isLogedIn; }
+            set { isLogedIn = value; OnPropertyChanged("RemoteHash"); }
         }
         
         #endregion
@@ -119,23 +131,24 @@ namespace ChecksumNet.ViewModel
         void LoginExecute()
         {
 
-            var logView = new View.LoginView
+            var vm = new LoginVM();
+            var loginWindow = new LoginView
             {
-                DataContext = new LoginVM()
+                DataContext = vm
             };
-            logView.Show();
+            vm.OnRequestClose += (s, e) => loginWindow.Close();
+
+            loginWindow.ShowDialog(); 
         }
 
         bool CanLoginExecute()
         {
-            return true;
+            return !IsLogedIn;
         }
         public ICommand LoginCommand
         {
             get { return new RelayCommand(param => this.LoginExecute(), param => this.CanLoginExecute()); }
         }
-
-        
 
         #endregion
 
@@ -143,13 +156,13 @@ namespace ChecksumNet.ViewModel
 
         void ConnectExecute()
         {
-            manager.SetConnection();
-            manager.StartListening();
+            Manager.SetConnection();
+            Manager.StartListening();
         }
 
         bool CanConnectExecute()
         {
-            return true;
+            return IsLogedIn;
         }
         public ICommand ConnectCommand
         {
@@ -170,13 +183,13 @@ namespace ChecksumNet.ViewModel
             if (result == true)
             {
                 Filename = dlg.FileName;
-                manager.NewChecksum(Filename);
+                Manager.NewChecksum(Filename);
             }
         }
 
         bool CanBrowseExecute()
         {
-            return true;
+            return IsLogedIn && Manager.IsConnected;
         }
         public ICommand BrowseCommand
         {

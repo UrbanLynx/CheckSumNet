@@ -12,7 +12,7 @@ namespace ChecksumNet.Console
     {
         static void Main(string[] args)
         {
-            var manager = new Manager();
+            var manager = new ModelManager();
             manager.SetConnection();
             manager.StartListening();
 

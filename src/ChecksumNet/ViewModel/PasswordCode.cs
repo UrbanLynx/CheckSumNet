@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace FunctionalFun.UI
+namespace ChecksumNet.ViewModel
 {
     public static class PasswordBoxAssistant
     {

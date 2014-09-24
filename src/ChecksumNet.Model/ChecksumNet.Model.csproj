@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -42,7 +43,7 @@
     <Compile Include="Authentication.cs" />
     <Compile Include="Checksum.cs" />
     <Compile Include="HostData.cs" />
-    <Compile Include="Manager.cs" />
+    <Compile Include="ModelManager.cs" />
     <Compile Include="NetProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

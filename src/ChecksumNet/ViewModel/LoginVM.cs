@@ -1,6 +1,7 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Windows;
+using System.Windows.Input;
 using ChecksumNet.Model;
-using FunctionalFun.UI;
 
 namespace ChecksumNet.ViewModel
 {
@@ -8,11 +9,7 @@ namespace ChecksumNet.ViewModel
     {
         #region Members
 
-        public Manager manager = new Manager();
-
-        private string _filename;
-
-        private string _login;
+        private string _username;
         private string _password;
         #endregion
 
@@ -24,41 +21,40 @@ namespace ChecksumNet.ViewModel
 
         #region Methods
 
-        /*private void DataChanged()
+        public bool CheckLogin() 
         {
-            OnPropertyChanged("RemoteIP");
-            OnPropertyChanged("Filename");
-            OnPropertyChanged("MyHash");
-            OnPropertyChanged("RemoteHash");
+            var isLogin = MainViewModel.Instance.Manager.TryLogin(Username, Password);
+            if (!isLogin)
+            {
+                MessageBox.Show("Неправильное имя пользователя или пароль.");
+                return false;
+            }
+            MainViewModel.Instance.IsLogedIn = true;
+            MessageBox.Show("Здравствуйте, " + Username + ", вы успешно вошли.");
+            CloseWindow(); 
+            return true;
         }
-       */
+
+        private void CloseWindow()
+        {
+            OnRequestClose(this, new EventArgs());
+        }
         #endregion
 
         #region Properties
 
-        public string Login
+        public event EventHandler OnRequestClose;
+
+        public string Username
         {
-            get { return _login; }
-            set { _login = value; OnPropertyChanged("Login"); }
+            get { return _username; }
+            set { _username = value; OnPropertyChanged("Username"); }
         }
 
         public string Password
         {
             get { return _password; }
             set { _password = value; OnPropertyChanged("Password"); }           
-        }
-
-        public string AuthResult
-        {
-            set
-            { OnPropertyChanged("AuthResult");}
-            get
-            {
-                if (manager.isAuthentication == true) 
-                    return "Вход произведен";
-                return "Вход не выполнен";
-            }
-
         }
                  
         #endregion
@@ -67,25 +63,42 @@ namespace ChecksumNet.ViewModel
 
         #region Login
 
-        void AuthenticationExecute()
+        void AuthenticateExecute()
         {
-            manager.Comare(Login, Password);
+            CheckLogin();
         }
 
-        bool CanAuthenticationExecute()
+        bool CanAuthenticateExecute()
         {
             return true;
         }
-        public ICommand AuthenticationCommand
+        public ICommand Authenticate
         {
-            get { return new RelayCommand(param => this.AuthenticationExecute(), param => this.CanAuthenticationExecute()); }
+            get { return new RelayCommand(param => this.AuthenticateExecute(), param => this.CanAuthenticateExecute()); }
         }
 
 
         #endregion
 
-     
-        
+        #region Cancel
+
+        void CancelExecute()
+        {
+            CloseWindow();
+        }
+
+        bool CanCancelExecute()
+        {
+            return true;
+        }
+        public ICommand Cancel
+        {
+            get { return new RelayCommand(param => this.CancelExecute(), param => this.CanCancelExecute()); }
+        }
+
+
+        #endregion
+
         #endregion
 
 
