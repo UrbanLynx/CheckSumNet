@@ -58,5 +58,16 @@ namespace ChecksumNet.Model
         public delegate void UpdateData();
 
         public event UpdateData DataUpdate;
+
+        private Authentication authentication = new Authentication();
+
+        public bool isAuthentication = false;
+
+        public void Comare(string inputLogin, string password)
+        {
+            isAuthentication = authentication.AuthenticationCompare(inputLogin, password);
+
+        }
+
     }
 }

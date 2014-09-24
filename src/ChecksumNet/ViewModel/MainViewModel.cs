@@ -74,7 +74,7 @@ namespace ChecksumNet.ViewModel
 
         public string RemoteIP
         {
-            set { OnPropertyChanged("RemoteIP");}
+            set { OnPropertyChanged("RemoteIP"); }
             get
             {
                 if (manager.RemoteHost != null && manager.RemoteHost.IP != null) return manager.RemoteHost.IP.ToString();
@@ -111,21 +111,19 @@ namespace ChecksumNet.ViewModel
         
         #endregion
 
+
         #region Commands
 
         #region Login
 
         void LoginExecute()
         {
-            /*var dlg = new Microsoft.Win32.OpenFileDialog();
-            var result = dlg.ShowDialog();
 
-            if (result == true)
+            var logView = new View.LoginView
             {
-                string filename = dlg.FileName;
-                _textSettings = _fileManager.LoadFrom(filename);
-
-            }*/
+                DataContext = new LoginVM()
+            };
+            logView.Show();
         }
 
         bool CanLoginExecute()
