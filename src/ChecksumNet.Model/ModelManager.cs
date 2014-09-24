@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NLog;
 
 namespace ChecksumNet.Model
 {
@@ -10,9 +7,11 @@ namespace ChecksumNet.Model
     {
         private NetProvider provider = new NetProvider();
         private Authentication authentication = new Authentication();
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public ModelManager()
         {
+            logger.Info("Application is running.");
             LocalHost = new HostData();
         }
 
@@ -66,7 +65,6 @@ namespace ChecksumNet.Model
 
         public delegate void UpdateData();
         public event UpdateData DataUpdate;
-
 
     }
 }

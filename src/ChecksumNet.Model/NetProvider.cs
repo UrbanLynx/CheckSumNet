@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using NLog;
 
 namespace ChecksumNet.Model
 {
@@ -22,6 +23,7 @@ namespace ChecksumNet.Model
     public class NetProvider
     {
         private Socket listener;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public NetProvider()
         {
