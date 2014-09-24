@@ -4,7 +4,9 @@
         xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:this="clr-namespace:ChecksumNet.ViewModel"
         Title="Checksum Net"
-        DataContext="{x:Static this:MainViewModel.Instance}">
+        DataContext="{x:Static this:MainViewModel.Instance}"
+        Width="700"
+        Height="240">
     <Window.Resources>
         <Style TargetType="{x:Type Label}">
             <Setter Property="Margin" Value="5"/>
@@ -42,7 +44,9 @@
               <MenuItem Header="About Checksum Net"></MenuItem>
             </MenuItem>
         </Menu>-->
-        
+
+        <Label Grid.Row="0" Grid.Column="0" Content="Текущий ПК"></Label>
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding LocalIP}" IsEnabled="False"></TextBox>
         <Button Grid.Row="0" Grid.Column="2" Command="{Binding LoginCommand}" Content="Авторизация"></Button>
 
         <Label Grid.Row="1" Grid.Column="0" Content="Удаленный ПК"></Label>
@@ -55,9 +59,11 @@
         
         <Label Grid.Row="3" Grid.Column="0" Content="Мой хэш"></Label>
         <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding MyHash}" IsEnabled="False"></TextBox>
+        
 
         <Label Grid.Row="4" Grid.Column="0" Content="Хэш удаленного ПК"></Label>
         <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding RemoteHash}" IsEnabled="False"></TextBox>
+        <Label Grid.Row="3" Grid.RowSpan="2" Grid.Column="2" Content=""></Label>
 
         <!--<Button Grid.Row="1" Content="Connect"></Button>
         

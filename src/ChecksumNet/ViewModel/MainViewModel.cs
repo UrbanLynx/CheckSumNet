@@ -52,38 +52,32 @@ namespace ChecksumNet.ViewModel
 
         private void DataChanged()
         {
+            OnPropertyChanged("LocalIP");
             OnPropertyChanged("RemoteIP");
             OnPropertyChanged("Filename");
             OnPropertyChanged("MyHash");
             OnPropertyChanged("RemoteHash");
         }
-
-
-        public string OpenFile()
-        {
-            /*var dlg = new Microsoft.Win32.OpenFileDialog();
-            var result = dlg.ShowDialog();
-
-            if (result == true)
-            {
-                string filename = dlg.FileName;
-                _textSettings = _fileManager.LoadFrom(filename);
-                return _textSettings.Text;
-            }*/
-            return null;
-        }
-
        
         #endregion
 
         #region Properties
+        public string LocalIP
+        {
+            set { OnPropertyChanged("LocalIP"); }
+            get
+            {
+                if (manager.LocalHost != null && manager.LocalHost.IP != null) return manager.LocalHost.IP.ToString();
+                return "";
+            }
+        }
 
         public string RemoteIP
         {
             set { OnPropertyChanged("RemoteIP");}
             get
             {
-                if (manager.RemoteHost != null) return manager.RemoteHost.IP.ToString();
+                if (manager.RemoteHost != null && manager.RemoteHost.IP != null) return manager.RemoteHost.IP.ToString();
                 return "Нет соединения";
             }
         }
@@ -98,8 +92,8 @@ namespace ChecksumNet.ViewModel
             set { OnPropertyChanged("MyHash"); }
             get
             {
-                if (manager.Sender.Checksum != null)
-                    return BitConverter.ToString(manager.Sender.Checksum).Replace("-", "").ToLower();
+                if (manager.LocalHost.Checksum != null)
+                    return BitConverter.ToString(manager.LocalHost.Checksum).Replace("-", "").ToLower();
                 return "Файл не выбран";
             }
         }

@@ -12,12 +12,13 @@ namespace ChecksumNet.Model
 
         public Manager()
         {
-            Sender = new HostData();
+            LocalHost = new HostData();
         }
 
         public void SetConnection()
         {
             provider.SetConnection();
+            LocalHost = new HostData(provider.LocalEP);
             RemoteHost = new HostData(provider.RemoteEP);
             DataUpdate();
         }
@@ -29,9 +30,9 @@ namespace ChecksumNet.Model
         }
         public void NewChecksum(string filename)
         {
-            Sender.Checksum = Checksum.CalculateChecksum(filename);
+            LocalHost.Checksum = Checksum.CalculateChecksum(filename);
             //CompareChecksums();
-            SendData(Sender.Checksum);
+            SendData(LocalHost.Checksum);
             DataUpdate();
         }
 
@@ -51,7 +52,7 @@ namespace ChecksumNet.Model
             Console.WriteLine("MD5 of remote computer: "+BitConverter.ToString(RemoteHost.Checksum).Replace("-","").ToLower());
         }
 
-        public HostData Sender { get; set; }
+        public HostData LocalHost { get; set; }
         public HostData RemoteHost { get; set; }
 
         public delegate void UpdateData();
