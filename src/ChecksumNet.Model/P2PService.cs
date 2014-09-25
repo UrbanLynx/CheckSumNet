@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.PeerToPeer;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,6 @@ namespace ChecksumNet.Model
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public class P2PService : IP2PService
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
         private string username;
 
         public P2PService(string username)
@@ -19,15 +19,17 @@ namespace ChecksumNet.Model
             this.username = username;
         }
 
+        public event EventHandler<ReceivedDataEventArgs> ReceivedData;
+
         public string GetName()
         {
             return username;
         }
 
-        public void SendMessage(string message, string from)
+        public void SendMessage(string message, PeerName from)
         {
-            logger.Debug("Сообщение пришло от {0}: {1}", from, message);
-            //hostReference.DisplayMessage(message, from);
+            ReceivedData(from, new ReceivedDataEventArgs(message, from));
+            //OnNewMessage(message, from);
         }
     }
 }

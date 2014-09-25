@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -49,10 +50,11 @@ namespace ChecksumNet.ViewModel
         private void Creator()
         {
             Manager = new ModelManager();
-            Manager.DataUpdate += DataChanged;
+            Manager.OnDataUpdate += OnDataChanged;
+            Manager.OnPeerRefresh += RefreshPeerList;
         }
 
-        private void DataChanged()
+        private void OnDataChanged()
         {
             OnPropertyChanged("LocalIP");
             OnPropertyChanged("RemoteIP");
@@ -62,6 +64,15 @@ namespace ChecksumNet.ViewModel
             OnPropertyChanged("IsChecksumsEqual");
         }
 
+        void RefreshPeerList()
+        {
+            PeerList = new List<PeerVM>();
+            foreach (var peerEntry in Manager.GetPeers())
+            {
+                PeerList.Add(new PeerVM(peerEntry));
+            }
+        }
+
         
         #endregion
 
@@ -69,12 +80,14 @@ namespace ChecksumNet.ViewModel
 
         public ModelManager Manager { get; set; }
 
+        public List<PeerVM> PeerList { get; set; }
+
         public string LocalIP
         {
             set { OnPropertyChanged("LocalIP"); }
             get
             {
-                if (Manager.LocalHost != null && Manager.LocalHost.IP != null) return Manager.LocalHost.IP.ToString();
+                //if (Manager.LocalHost != null && Manager.LocalHost.IP != null) return Manager.LocalHost.IP.ToString();
                 return "";
             }
         }
@@ -84,7 +97,7 @@ namespace ChecksumNet.ViewModel
             set { OnPropertyChanged("RemoteIP"); }
             get
             {
-                if (Manager.RemoteHost != null && Manager.RemoteHost.IP != null) return Manager.RemoteHost.IP.ToString();
+                //if (Manager.RemoteHost != null && Manager.RemoteHost.IP != null) return Manager.RemoteHost.IP.ToString();
                 return "Нет соединения";
             }
         }
@@ -98,19 +111,20 @@ namespace ChecksumNet.ViewModel
         {
             get
             {
-                if (Manager.LocalHost.Checksum != null)
-                    return Manager.LocalHost.Checksum;
+                /*var peer = Manager.GetLocalPeer();
+                if (peer.Checksum != null)
+                    return peer.Checksum;*/
                 return "Файл не выбран";
             }
-            set { OnPropertyChanged("MyHash"); }
         }
 
         public string RemoteHash
         {
             get
             {
-                if (Manager.RemoteHost != null && Manager.RemoteHost.Checksum != null)
-                    return Manager.RemoteHost.Checksum;
+                /*var peer = Manager.GetPeers().FirstOrDefault();
+                if (peer != null && peer.Checksum != null)
+                    return peer.Checksum;*/
                 return "Удаленный ПК не выбрал файл";
             }
             set { OnPropertyChanged("RemoteHash"); }
@@ -163,6 +177,7 @@ namespace ChecksumNet.ViewModel
         void ConnectExecute()
         {
             Manager.SetConnection();
+            
             //Manager.StartListening();
         }
 

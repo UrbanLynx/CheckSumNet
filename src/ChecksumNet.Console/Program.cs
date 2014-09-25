@@ -14,7 +14,7 @@ namespace ChecksumNet.Console
         {
             var manager = new ModelManager();
             manager.SetConnection();
-            manager.StartListening();
+            //manager.StartListening();
 
             string path = @"D:\aa.txt";
             if(File.Exists(path))

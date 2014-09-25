@@ -12,7 +12,10 @@ namespace ChecksumNet.Model
         public PeerName PeerName { get; set; }
         public IP2PService ServiceProxy { get; set; }
         public string DisplayString { get; set; }
-        public bool CanConnect { get; set; }
+        //public bool CanConnect { get; set; }
         public string Checksum { get; set; }
+
+        /*public delegate void UpdatePeerList(string checksum, PeerName peer);
+        public event UpdatePeerList OnNewMessage;*/
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Net;
 using System.Net.PeerToPeer;
 using System.Net.Sockets;
@@ -11,20 +12,21 @@ namespace ChecksumNet.Model
 {
     public class NetProvider
     {
-        public delegate void ProcessData(byte[] data);
+        public delegate void ProcessData();
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        private List<PeerEntry> PeerList = new List<PeerEntry>();
 
+        public List<PeerEntry> PeerList = new List<PeerEntry>();
+        public PeerEntry LocalPeer = new PeerEntry();
+
+        // для управления службой wcf и pnrp
         private ServiceHost host;
-        private P2PService localService;
-        private PeerName peerName;
         private PeerNameRegistration peerNameRegistration;
-        private string serviceUrl;
         
         public NetProvider()
         {
-            RegisterHost(Dns.GetHostName());
+            RegisterHost(Environment.MachineName);
+            //RegisterHost(Dns.GetHostName());
         }
 
         public NetProvider(string username)
@@ -32,11 +34,14 @@ namespace ChecksumNet.Model
             RegisterHost(username);
         }
 
-        public bool IsServerActive { get; set; }
+       /* public bool IsServerActive { get; set; }
         public EndPoint RemoteEP { get; set; }
-        public EndPoint LocalEP { get; set; }
+        public EndPoint LocalEP { get; set; }*/
 
-        public event ProcessData onDataReceived;
+        public event ProcessData OnDataReceived;
+
+        public delegate void DataChanged();
+        public event DataChanged OnNewPeers;
 
         public void SetConnection()
         {
@@ -48,7 +53,7 @@ namespace ChecksumNet.Model
             // Получение конфигурационной информации из app.config
             string port = ConfigurationManager.AppSettings["port"];
             //string username = "lalal";
-            string machineName = Environment.MachineName;
+            //string machineName = Environment.MachineName;
             string serviceUrl = null;
 
 
@@ -66,13 +71,13 @@ namespace ChecksumNet.Model
             // Выполнение проверки, не является ли адрес null
             if (serviceUrl == null)
             {
-                // TODO: Отображение ошибки и завершение работы приложения
-                //MessageBox.Show(this, "Не удается определить адрес конечной точки WCF.", "Networking Error",MessageBoxButton.OK, MessageBoxImage.Stop);
+                logger.Info("Не удается определить адрес конечной точки WCF.");
             }
 
             // Регистрация и запуск службы WCF
-            localService = new P2PService(username);
-            host = new ServiceHost(localService, new Uri(serviceUrl));
+            LocalPeer.ServiceProxy = new P2PService(username);
+            LocalPeer.ServiceProxy.ReceivedData += ServiceProxyOnReceivedData;
+            host = new ServiceHost(LocalPeer.ServiceProxy, new Uri(serviceUrl));
             var binding = new NetTcpBinding();
             binding.Security.Mode = SecurityMode.None;
             host.AddServiceEndpoint(typeof (IP2PService), binding, serviceUrl);
@@ -82,19 +87,30 @@ namespace ChecksumNet.Model
             }
             catch (AddressAlreadyInUseException)
             {
-                // TODO: Отображение ошибки и завершение работы приложения
-                //MessageBox.Show(this, "Не удается начать прослушивание, порт занят.", "WCF Error", MessageBoxButton.OK, MessageBoxImage.Stop);
+                logger.Info("Ошибка WCF. Не удается начать прослушивание, порт занят.");
             }
 
             // Создание имени равноправного участника (пира)
-            peerName = new PeerName("P2P Sample", PeerNameType.Unsecured);
+            LocalPeer.PeerName = new PeerName("P2P Checksums", PeerNameType.Unsecured);
 
             // Подготовка процесса регистрации имени равноправного участника в локальном облаке
-            peerNameRegistration = new PeerNameRegistration(peerName, int.Parse(port));
+            peerNameRegistration = new PeerNameRegistration(LocalPeer.PeerName, int.Parse(port));
             peerNameRegistration.Cloud = Cloud.AllLinkLocal;
 
             // Запуск процесса регистрации
             peerNameRegistration.Start();
+        }
+
+        private void ServiceProxyOnReceivedData(object sender, ReceivedDataEventArgs receivedDataEventArgs)
+        {
+            var fromPeer =
+                PeerList.FirstOrDefault(
+                    peer => peer.PeerName.PeerHostName == receivedDataEventArgs.FromPeer.PeerHostName);
+            if (fromPeer != null)
+            {
+                fromPeer.Checksum = receivedDataEventArgs.Data;
+                OnDataReceived();
+            }
         }
 
         public void StopHost()
@@ -118,13 +134,14 @@ namespace ChecksumNet.Model
             // TODO: RefreshButton.IsEnabled = false;
 
             // Преобразование незащищенных имен пиров асинхронным образом
-            resolver.ResolveAsync(new PeerName("0.P2P Sample"), 1);
+            resolver.ResolveAsync(new PeerName("P2P Checksums", PeerNameType.Unsecured), 1);
         }
 
         private void resolver_ResolveCompleted(object sender, ResolveCompletedEventArgs e)
         {
-            // Сообщение об ошибке, если в облаке не найдены пиры
-            if (PeerList.Count == 0)
+            OnNewPeers();
+            // TODO: Сообщение об ошибке, если в облаке не найдены пиры
+            /*if (PeerList.Count == 0)
             {
                 PeerList.Add(
                     new PeerEntry
@@ -132,7 +149,7 @@ namespace ChecksumNet.Model
                         DisplayString = "Пиры не найдены.",
                         CanConnect = false
                     });
-            }
+            }*/
             // Повторно включаем кнопку "обновить"
             // TODO: RefreshButton.IsEnabled = true;
         }
@@ -158,7 +175,7 @@ namespace ChecksumNet.Model
                                 PeerName = peer.PeerName,
                                 ServiceProxy = serviceProxy,
                                 DisplayString = serviceProxy.GetName(),
-                                CanConnect = true
+                                //CanConnect = true
                             });
                     }
                     catch (EndpointNotFoundException)
@@ -168,7 +185,7 @@ namespace ChecksumNet.Model
                             {
                                 PeerName = peer.PeerName,
                                 DisplayString = "Неизвестный пир",
-                                CanConnect = false
+                                //CanConnect = false
                             });
                     }
                 }
@@ -184,7 +201,7 @@ namespace ChecksumNet.Model
                 {
                     try
                     {
-                        peerEntry.ServiceProxy.SendMessage("Привет друг!", ConfigurationManager.AppSettings["username"]);
+                        peerEntry.ServiceProxy.SendMessage(data, LocalPeer.PeerName);
                     }
                     catch (CommunicationException)
                     {
@@ -194,5 +211,7 @@ namespace ChecksumNet.Model
             }
             
         }
+
+        
     }
 }

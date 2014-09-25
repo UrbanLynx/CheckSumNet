@@ -59,10 +59,10 @@
         <Button Grid.Row="2" Grid.Column="2" Command="{Binding BrowseCommand}" Content="Открыть файл ..."></Button>
         
         <Label Grid.Row="3" Grid.Column="0" Content="Мой хэш"></Label>
-        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding MyHash}" IsEnabled="False"></TextBox>
+        <!--<TextBox Grid.Row="3" Grid.Column="1" Text="{Binding MyHash}" IsEnabled="False"></TextBox>-->
 
         <Label Grid.Row="4" Grid.Column="0" Content="Хэш удаленного ПК"></Label>
-        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding RemoteHash}" IsEnabled="False"></TextBox>
+        <!--<TextBox Grid.Row="4" Grid.Column="1" Text="{Binding RemoteHash}" IsEnabled="False"></TextBox>-->
 
         <Label Grid.Row="5" Grid.Column="0" Content="Хэши равны"></Label>
         <CheckBox Grid.Row="5" Grid.Column="1" IsEnabled="False" IsChecked="{Binding IsChecksumsEqual}" 
