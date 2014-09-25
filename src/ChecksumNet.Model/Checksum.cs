@@ -10,13 +10,13 @@ namespace ChecksumNet.Model
 {
     class Checksum
     {
-        public static byte[] CalculateChecksum(string filename)
+        public static string CalculateChecksum(string filename)
         {
             using (var md5 = MD5.Create())
             {
                 using (var stream = File.OpenRead(filename))
                 {
-                    return md5.ComputeHash(stream);
+                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
                 }
             }
         }

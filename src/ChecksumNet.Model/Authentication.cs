@@ -24,7 +24,8 @@ namespace ChecksumNet.Model
     public class Authentication
     {
         public bool isLogedIn = false;
-        private List<UserInfo> users; 
+        private List<UserInfo> users;
+        private UserInfo logedUser;
 
         public Authentication()
         {
@@ -33,8 +34,17 @@ namespace ChecksumNet.Model
 
         public bool Login(string username, string password)
         {
-            isLogedIn = users.Exists(user => (user.Username == username && user.Password == password));
-            return isLogedIn;
+            logedUser = users.FirstOrDefault(user => (user.Username == username && user.Password == password));
+            if (logedUser != null)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public string GetUsername()
+        {
+            return logedUser.Username;
         }
 
         public void DownloadAuthenticationInfo()

@@ -99,7 +99,7 @@ namespace ChecksumNet.ViewModel
             get
             {
                 if (Manager.LocalHost.Checksum != null)
-                    return BitConverter.ToString(Manager.LocalHost.Checksum).Replace("-", "").ToLower();
+                    return Manager.LocalHost.Checksum;
                 return "Файл не выбран";
             }
             set { OnPropertyChanged("MyHash"); }
@@ -110,7 +110,7 @@ namespace ChecksumNet.ViewModel
             get
             {
                 if (Manager.RemoteHost != null && Manager.RemoteHost.Checksum != null)
-                    return BitConverter.ToString(Manager.RemoteHost.Checksum).Replace("-", "").ToLower();
+                    return Manager.RemoteHost.Checksum;
                 return "Удаленный ПК не выбрал файл";
             }
             set { OnPropertyChanged("RemoteHash"); }
@@ -163,12 +163,13 @@ namespace ChecksumNet.ViewModel
         void ConnectExecute()
         {
             Manager.SetConnection();
-            Manager.StartListening();
+            //Manager.StartListening();
         }
 
         bool CanConnectExecute()
         {
-            return IsLogedIn;
+            return true;
+            //return IsLogedIn;
         }
         public ICommand ConnectCommand
         {
@@ -195,7 +196,8 @@ namespace ChecksumNet.ViewModel
 
         bool CanBrowseExecute()
         {
-            return IsLogedIn && Manager.IsConnected;
+            return true;
+            //return IsLogedIn && Manager.IsConnected;
         }
         public ICommand BrowseCommand
         {

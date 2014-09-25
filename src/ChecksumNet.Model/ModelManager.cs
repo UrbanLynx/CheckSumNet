@@ -24,37 +24,37 @@ namespace ChecksumNet.Model
             DataUpdate();
         }
 
-        public void StartListening()
+        /*public void StartListening()
         {
             provider.onDataReceived += ReceiveData;
-            provider.StartListening();
-        }
+            //provider.StartListening();
+        }*/
         public void NewChecksum(string filename)
         {
             LocalHost.Checksum = Checksum.CalculateChecksum(filename);
             CompareChecksums();
-            SendData(LocalHost.Checksum);
+            provider.Send(LocalHost.Checksum);
+            //SendData();
             DataUpdate();
         }
 
-        private void SendData(byte[] data)
+        /*private void SendData(string data)
         {
             provider.Send(data);
-        }
+        }*/
 
-        public void ReceiveData(byte[] data)
+        /*public void ReceiveData(byte[] data)
         {
-            RemoteHost.Checksum = data;
-            CompareChecksums();
+            //RemoteHost.Checksum = data;
+            //CompareChecksums();
             DataUpdate();
-        }
+        }*/
 
         public void CompareChecksums()
         {
             if (RemoteHost != null && RemoteHost.Checksum != null && LocalHost != null && LocalHost.Checksum != null)
             {
-                IsChecksumsEqual = (BitConverter.ToString(LocalHost.Checksum) ==
-                                   BitConverter.ToString(RemoteHost.Checksum));
+                IsChecksumsEqual = (LocalHost.Checksum == RemoteHost.Checksum);
             }
             else
             {
@@ -66,7 +66,13 @@ namespace ChecksumNet.Model
 
         public bool TryLogin(string username, string password)
         {
-            return authentication.Login(username, password);
+            if (authentication.Login(username, password))
+            {
+                provider = new NetProvider(username);
+                return true;
+            }
+            
+            return false;
         }
     
         public HostData LocalHost { get; set; }

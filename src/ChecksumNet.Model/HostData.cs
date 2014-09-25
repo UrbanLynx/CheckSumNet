@@ -15,7 +15,7 @@ namespace ChecksumNet.Model
 
         public bool FileReady { get; set; }
         public EndPoint IP { get; set; }
-        public byte[] Checksum { get; set; }
+        public string Checksum { get; set; }
         public string PcName { get; set; }
     }
 }

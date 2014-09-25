@@ -1,272 +1,198 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Net;
+using System.Net.PeerToPeer;
 using System.Net.Sockets;
-using System.Threading;
+using System.ServiceModel;
 using NLog;
 
 namespace ChecksumNet.Model
 {
-    public class StateObject
-    {
-        // Client  socket.
-        public Socket workSocket = null;
-        // Size of receive buffer.
-        public const int BufferSize = 1024;
-        // Receive buffer.
-        public byte[] buffer = new byte[BufferSize];
-        // Received data string.
-        //public StringBuilder sb = new StringBuilder();
-    }
-
-
     public class NetProvider
     {
-        private Socket listener;
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        public delegate void ProcessData(byte[] data);
 
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private List<PeerEntry> PeerList = new List<PeerEntry>();
+
+        private ServiceHost host;
+        private P2PService localService;
+        private PeerName peerName;
+        private PeerNameRegistration peerNameRegistration;
+        private string serviceUrl;
+        
         public NetProvider()
         {
-            IsServerActive = false;
+            RegisterHost(Dns.GetHostName());
+        }
 
-            //IPHostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
-            //IPAddress ipAddress = ipHostInfo.AddressList[0];
-            //LocalEP = new IPEndPoint(ipAddress, 4800);
-
+        public NetProvider(string username)
+        {
+            RegisterHost(username);
         }
 
         public bool IsServerActive { get; set; }
         public EndPoint RemoteEP { get; set; }
         public EndPoint LocalEP { get; set; }
 
-        public delegate void ProcessData(byte[] data);
-
         public event ProcessData onDataReceived;
 
         public void SetConnection()
         {
-            if (!ActAsClient())
-            {
-                IsServerActive = true;
-                ActAsServer();
-            }
+            RefreshHosts();
         }
 
-        public void ActAsServer()
+        public void RegisterHost(string username)
         {
-            //Start server
-            const int Port = 4800;
-            IPHostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
-            LocalEP = new IPEndPoint(ipAddress, Port);
+            // Получение конфигурационной информации из app.config
+            string port = ConfigurationManager.AppSettings["port"];
+            //string username = "lalal";
+            string machineName = Environment.MachineName;
+            string serviceUrl = null;
 
-            var server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            Console.Write("Running server..." + Environment.NewLine);
-            server.Bind(new IPEndPoint(IPAddress.Any, Port));
 
-            while (IsServerActive)
+            //  Получение URL-адреса службы с использованием адресаIPv4 
+            //  и порта из конфигурационного файла
+            foreach (IPAddress address in Dns.GetHostAddresses(Dns.GetHostName()))
             {
-                var sender = new IPEndPoint(IPAddress.Any, 0);
-                EndPoint tempRemoteEP = sender;
-                var buffer = new byte[1000];
-                //Recive message from anyone.
-                //Server could crash here if there is another server
-                //on the network listening at the same port.
-                server.ReceiveFrom(buffer, ref tempRemoteEP);
-
-                Console.Write("Server got '" + buffer[0] + "' from " + tempRemoteEP + Environment.NewLine);
-                Console.Write("Sending '2' to " + tempRemoteEP + Environment.NewLine);
-
-                //Replay to client
-                server.SendTo(new byte[] {2}, tempRemoteEP);
-
-                RemoteEP = tempRemoteEP;
-                server.Shutdown(SocketShutdown.Both);
-                server.Close();
-                return; //TODO: ждать пока IsServerActive=false или выходить по времени
-            }
-        }
-
-        public bool ActAsClient()
-        {
-            const int Port = 4800;
-            //string serverIp = "";
-
-            //Get all addresses
-            string hostname = Dns.GetHostName();
-            IPHostEntry allLocalNetworkAddresses = Dns.Resolve(hostname);
-            EndPoint tempRemoteEP = null;
-
-            //Walk thru all network interfaces.
-            foreach (IPAddress ip in allLocalNetworkAddresses.AddressList)
-            {
-                var client = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-                //Bind on port 0. The OS will give some port between 1025 and 5000.
-                client.Bind(new IPEndPoint(ip, 0));
-
-                //Create endpoint, broadcast.
-                var AllEndPoint = new IPEndPoint(IPAddress.Broadcast, Port);
-
-                //Allow sending broadcast messages
-                client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
-
-                //Send message to everyone on this network
-                client.SendTo(new byte[] {1}, AllEndPoint);
-                Console.Write("Client send '1' to " + AllEndPoint + Environment.NewLine);
-
-                try
+                if (address.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    //Create object for the server.
-                    var sender = new IPEndPoint(IPAddress.Any, 0);
-                    tempRemoteEP = sender;
-                    var buffer = new byte[1000];
-
-                    //Recieve from server. Don't wait more than 3000 milliseconds.
-                    client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 3000);
-
-                    //Recive message, save wherefrom in tempRemoteIp
-                    client.ReceiveFrom(buffer, ref tempRemoteEP);
-                    Console.Write("Client got '" + buffer[0] + "' from " + tempRemoteEP + Environment.NewLine);
-
-                    //Get server IP (ugly)
-                    //serverIp = tempRemoteEP.ToString().Split(":".ToCharArray(), 2)[0];
-
-                    //Don't try any more networks
-
-                    RemoteEP = tempRemoteEP;
-                    LocalEP = client.LocalEndPoint;
-                    client.Shutdown(SocketShutdown.Both);
-                    client.Close();
-                    return true;
-                    //break;
-                }
-                catch (Exception)
-                {
-                    //Timout. No server answered. Try next network.
+                    serviceUrl = string.Format("net.tcp://{0}:{1}/P2PService", address, port);
+                    break;
                 }
             }
 
-            //Console.Write("ServerIp: " + serverIp + Environment.NewLine);
-            return false;
-        }
+            // Выполнение проверки, не является ли адрес null
+            if (serviceUrl == null)
+            {
+                // TODO: Отображение ошибки и завершение работы приложения
+                //MessageBox.Show(this, "Не удается определить адрес конечной точки WCF.", "Networking Error",MessageBoxButton.OK, MessageBoxImage.Stop);
+            }
 
-        public void Send(byte[] data)
-        {
+            // Регистрация и запуск службы WCF
+            localService = new P2PService(username);
+            host = new ServiceHost(localService, new Uri(serviceUrl));
+            var binding = new NetTcpBinding();
+            binding.Security.Mode = SecurityMode.None;
+            host.AddServiceEndpoint(typeof (IP2PService), binding, serviceUrl);
             try
             {
-                // Create a TCP/IP  socket.
-                var sender = new Socket(AddressFamily.InterNetwork,
-                    SocketType.Stream, ProtocolType.Tcp);
-
-                // Connect the socket to the remote endpoint. Catch any errors.
-                try
-                {
-                    sender.Connect(RemoteEP);
-
-                    Console.WriteLine("Socket connected to {0}", sender.RemoteEndPoint);
-
-                    int bytesSent = sender.Send(data);
-
-                    // Release the socket.
-                    sender.Shutdown(SocketShutdown.Both);
-                    sender.Close();
-                }
-                catch (ArgumentNullException ane)
-                {
-                    Console.WriteLine("ArgumentNullException : {0}", ane);
-                }
-                catch (SocketException se)
-                {
-                    Console.WriteLine("SocketException : {0}", se);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Unexpected exception : {0}", e);
-                }
+                host.Open();
             }
-            catch (Exception e)
+            catch (AddressAlreadyInUseException)
             {
-                Console.WriteLine(e.ToString());
+                // TODO: Отображение ошибки и завершение работы приложения
+                //MessageBox.Show(this, "Не удается начать прослушивание, порт занят.", "WCF Error", MessageBoxButton.OK, MessageBoxImage.Stop);
             }
+
+            // Создание имени равноправного участника (пира)
+            peerName = new PeerName("P2P Sample", PeerNameType.Unsecured);
+
+            // Подготовка процесса регистрации имени равноправного участника в локальном облаке
+            peerNameRegistration = new PeerNameRegistration(peerName, int.Parse(port));
+            peerNameRegistration.Cloud = Cloud.AllLinkLocal;
+
+            // Запуск процесса регистрации
+            peerNameRegistration.Start();
         }
 
-        // Thread signal.
-
-        public void StartListening()
+        public void StopHost()
         {
-            // Create a TCP/IP socket.
-            listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            // Остановка регистрации
+            peerNameRegistration.Stop();
 
-            // Bind the socket to the local endpoint and listen for incoming connections.
-            try
+            // Остановка WCF-сервиса
+            host.Close();
+        }
+
+        public void RefreshHosts()
+        {
+            // Создание распознавателя и добавление обработчиков событий
+            var resolver = new PeerNameResolver();
+            resolver.ResolveProgressChanged += resolver_ResolveProgressChanged;
+            resolver.ResolveCompleted += resolver_ResolveCompleted;
+
+            // Подготовка к добавлению новых пиров
+            PeerList.Clear();
+            // TODO: RefreshButton.IsEnabled = false;
+
+            // Преобразование незащищенных имен пиров асинхронным образом
+            resolver.ResolveAsync(new PeerName("0.P2P Sample"), 1);
+        }
+
+        private void resolver_ResolveCompleted(object sender, ResolveCompletedEventArgs e)
+        {
+            // Сообщение об ошибке, если в облаке не найдены пиры
+            if (PeerList.Count == 0)
             {
-                listener.Blocking = false;
-                listener.Bind(LocalEP);
-                listener.Listen(100);
-
-                PerformListen(listener);
-                //listener.BeginAccept(AcceptCallback,listener);
+                PeerList.Add(
+                    new PeerEntry
+                    {
+                        DisplayString = "Пиры не найдены.",
+                        CanConnect = false
+                    });
             }
-            catch (Exception e)
+            // Повторно включаем кнопку "обновить"
+            // TODO: RefreshButton.IsEnabled = true;
+        }
+
+        private void resolver_ResolveProgressChanged(object sender, ResolveProgressChangedEventArgs e)
+        {
+            PeerNameRecord peer = e.PeerNameRecord;
+
+            foreach (IPEndPoint ep in peer.EndPointCollection)
             {
-                Console.WriteLine(e.ToString());
+                if (ep.Address.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    try
+                    {
+                        string endpointUrl = string.Format("net.tcp://{0}:{1}/P2PService", ep.Address, ep.Port);
+                        var binding = new NetTcpBinding();
+                        binding.Security.Mode = SecurityMode.None;
+                        IP2PService serviceProxy = ChannelFactory<IP2PService>.CreateChannel(
+                            binding, new EndpointAddress(endpointUrl));
+                        PeerList.Add(
+                            new PeerEntry
+                            {
+                                PeerName = peer.PeerName,
+                                ServiceProxy = serviceProxy,
+                                DisplayString = serviceProxy.GetName(),
+                                CanConnect = true
+                            });
+                    }
+                    catch (EndpointNotFoundException)
+                    {
+                        PeerList.Add(
+                            new PeerEntry
+                            {
+                                PeerName = peer.PeerName,
+                                DisplayString = "Неизвестный пир",
+                                CanConnect = false
+                            });
+                    }
+                }
             }
         }
 
-        private void PerformListen(Socket listener)
+        public void Send(string data)
         {
-            listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
-        }
+            foreach (var peerEntry in PeerList)
+            {
+                // Получение пира и прокси, для отправки сообщения
+                if (peerEntry != null && peerEntry.ServiceProxy != null)
+                {
+                    try
+                    {
+                        peerEntry.ServiceProxy.SendMessage("Привет друг!", ConfigurationManager.AppSettings["username"]);
+                    }
+                    catch (CommunicationException)
+                    {
 
-        public void AcceptCallback(IAsyncResult ar)
-        {
-            // Get the socket that handles the client request.
-            var listener = (Socket) ar.AsyncState;
-            Socket handler = listener.EndAccept(ar);
-
-            // Create the state object.
-            var state = new StateObject();
-            state.workSocket = handler;
-            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
-        }
-
-        public void ReadCallback(IAsyncResult ar)
-        {
-            // Retrieve the state object and the handler socket
-            // from the asynchronous state object.
-            var state = (StateObject) ar.AsyncState;
-            Socket handler = state.workSocket;
-
-            // Read data from the client socket. 
-            int bytesRead = handler.EndReceive(ar);
-            var shortenBuffer = new byte[bytesRead];
-            Array.Copy(state.buffer, 0, shortenBuffer, 0, bytesRead);
-            onDataReceived(shortenBuffer);
+                    }
+                }
+            }
             
-            CloseNode(handler, true);
         }
-
-        public void CloseNode(Socket handler, bool acceptMoreConnections)
-        {
-            try
-            {
-                if (handler != null)
-                {
-                    handler.Shutdown(SocketShutdown.Both);
-                    handler.Close();
-                    handler.Dispose();
-                    handler = null;
-                }
-                
-                if (acceptMoreConnections)
-                    PerformListen(listener);
-            }
-            catch (Exception e)
-            {
-                // exc
-            }
-        }
-        
     }
 }
