@@ -40,8 +40,8 @@ namespace ChecksumNet.Model
 
         public event ProcessData OnDataReceived;
 
-        public delegate void DataChanged();
-        public event DataChanged OnNewPeers;
+        public delegate void NewPeer(PeerEntry peerEntry);
+        public event NewPeer OnNewPeers;
 
         public void SetConnection()
         {
@@ -77,6 +77,7 @@ namespace ChecksumNet.Model
             // Регистрация и запуск службы WCF
             LocalPeer.ServiceProxy = new P2PService(username);
             LocalPeer.ServiceProxy.ReceivedData += ServiceProxyOnReceivedData;
+            LocalPeer.DisplayString = LocalPeer.ServiceProxy.GetName();
             host = new ServiceHost(LocalPeer.ServiceProxy, new Uri(serviceUrl));
             var binding = new NetTcpBinding();
             binding.Security.Mode = SecurityMode.None;
@@ -139,7 +140,7 @@ namespace ChecksumNet.Model
 
         private void resolver_ResolveCompleted(object sender, ResolveCompletedEventArgs e)
         {
-            OnNewPeers();
+            
             // TODO: Сообщение об ошибке, если в облаке не найдены пиры
             /*if (PeerList.Count == 0)
             {
@@ -169,14 +170,15 @@ namespace ChecksumNet.Model
                         binding.Security.Mode = SecurityMode.None;
                         IP2PService serviceProxy = ChannelFactory<IP2PService>.CreateChannel(
                             binding, new EndpointAddress(endpointUrl));
-                        PeerList.Add(
-                            new PeerEntry
-                            {
-                                PeerName = peer.PeerName,
-                                ServiceProxy = serviceProxy,
-                                DisplayString = serviceProxy.GetName(),
-                                //CanConnect = true
-                            });
+                        var newPeer = new PeerEntry
+                        {
+                            PeerName = peer.PeerName,
+                            ServiceProxy = serviceProxy,
+                            DisplayString = serviceProxy.GetName(),
+                            //CanConnect = true
+                        };
+                        PeerList.Add(newPeer);
+                        OnNewPeers(newPeer);
                     }
                     catch (EndpointNotFoundException)
                     {

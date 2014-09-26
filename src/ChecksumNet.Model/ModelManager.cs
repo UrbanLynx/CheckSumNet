@@ -14,8 +14,13 @@ namespace ChecksumNet.Model
         {
             logger.Info("Application is running.");
             provider.OnDataReceived += ProviderOnOnDataReceived;
-            provider.OnNewPeers += () => OnPeerRefresh();
-            provider.SetConnection();
+            provider.OnNewPeers += ProviderOnOnNewPeers;
+            //provider.SetConnection();
+        }
+
+        private void ProviderOnOnNewPeers(PeerEntry peerEntry)
+        {
+            OnNewPeer(peerEntry);
         }
 
         private void ProviderOnOnDataReceived()
@@ -90,7 +95,9 @@ namespace ChecksumNet.Model
 
         public delegate void DataChanged();
         public event DataChanged OnDataUpdate;
-        public event DataChanged OnPeerRefresh;
+
+        public delegate void NewPeer(PeerEntry peerEntry);
+        public event NewPeer OnNewPeer;
         //public event UpdateData OnNewPeer;
     }
 }

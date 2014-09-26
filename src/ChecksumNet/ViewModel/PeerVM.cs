@@ -16,15 +16,32 @@ namespace ChecksumNet.ViewModel
             Peer = peerEntry;
         }
 
+        public void DataUpdate()
+        {
+            OnPropertyChanged("PeerName");
+            OnPropertyChanged("Checksum");
+            OnPropertyChanged("IsChecksumsEqual");
+        }
+
         public string PeerName
         {
             get { return Peer.DisplayString; }
+            set { OnPropertyChanged("PeerName");}
         }
 
         public string Checksum
         {
             get { return Peer.Checksum; }
-            set { Peer.Checksum = value; }
+            set { OnPropertyChanged("Checksum");}
+        }
+
+        public bool IsChecksumsEqual
+        {
+            get
+            {
+                return Checksum == MainViewModel.Instance.LocalPeer.Checksum; 
+            }
+            set { OnPropertyChanged("IsChecksumsEqual"); }
         }
     }
 }

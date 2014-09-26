@@ -20,6 +20,8 @@ namespace ChecksumNet.ViewModel
 
         private string filename;
         private bool isLogedIn = false;
+        private List<PeerVM> peerList;
+        private PeerVM localPeer;
 
         #endregion
 
@@ -51,7 +53,8 @@ namespace ChecksumNet.ViewModel
         {
             Manager = new ModelManager();
             Manager.OnDataUpdate += OnDataChanged;
-            Manager.OnPeerRefresh += RefreshPeerList;
+            Manager.OnNewPeer += AddPeerToList;
+            SetLocalPeer();
         }
 
         private void OnDataChanged()
@@ -62,15 +65,21 @@ namespace ChecksumNet.ViewModel
             OnPropertyChanged("MyHash");
             OnPropertyChanged("RemoteHash");
             OnPropertyChanged("IsChecksumsEqual");
+            OnPropertyChanged("LocalPeer");
+            OnPropertyChanged("PeerList");
         }
 
-        void RefreshPeerList()
+        void SetLocalPeer()
         {
-            PeerList = new List<PeerVM>();
-            foreach (var peerEntry in Manager.GetPeers())
-            {
-                PeerList.Add(new PeerVM(peerEntry));
-            }
+            LocalPeer = new PeerVM(Manager.GetLocalPeer());
+            Manager.OnDataUpdate += localPeer.DataUpdate;
+        }
+
+        void AddPeerToList(PeerEntry peerEntry)
+        {
+            var newPeer = new PeerVM(peerEntry);
+            Manager.OnDataUpdate += newPeer.DataUpdate;
+            PeerList.Add(newPeer);
         }
 
         
@@ -80,7 +89,17 @@ namespace ChecksumNet.ViewModel
 
         public ModelManager Manager { get; set; }
 
-        public List<PeerVM> PeerList { get; set; }
+        public List<PeerVM> PeerList
+        {
+            get { return peerList; }
+            set { peerList = value; OnPropertyChanged("PeerList"); }
+        }
+
+        public PeerVM LocalPeer
+        {
+            get { return localPeer; }
+            set { localPeer = value; OnPropertyChanged("LocalPeer"); }
+        }
 
         public string LocalIP
         {
@@ -94,12 +113,12 @@ namespace ChecksumNet.ViewModel
 
         public string RemoteIP
         {
-            set { OnPropertyChanged("RemoteIP"); }
             get
             {
                 //if (Manager.RemoteHost != null && Manager.RemoteHost.IP != null) return Manager.RemoteHost.IP.ToString();
                 return "Нет соединения";
             }
+            set { OnPropertyChanged("RemoteIP"); }
         }
         public string Filename
         {
@@ -116,6 +135,7 @@ namespace ChecksumNet.ViewModel
                     return peer.Checksum;*/
                 return "Файл не выбран";
             }
+            set { OnPropertyChanged("MyHash"); }
         }
 
         public string RemoteHash
@@ -176,6 +196,7 @@ namespace ChecksumNet.ViewModel
 
         void ConnectExecute()
         {
+            PeerList = new List<PeerVM>();
             Manager.SetConnection();
             
             //Manager.StartListening();
