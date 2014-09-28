@@ -25,34 +25,25 @@ namespace ChecksumNet.Model
         
         public NetProvider()
         {
-            RegisterHost(Environment.MachineName);
-            //RegisterHost(Dns.GetHostName());
+            //RegisterHost(Environment.MachineName);
+            //RegisterHost("qw");
         }
 
-        public NetProvider(string username)
+        /*public NetProvider(string username)
         {
             RegisterHost(username);
-        }
-
-       /* public bool IsServerActive { get; set; }
-        public EndPoint RemoteEP { get; set; }
-        public EndPoint LocalEP { get; set; }*/
+        }*/
 
         public event ProcessData OnDataReceived;
 
         public delegate void NewPeer(PeerEntry peerEntry);
         public event NewPeer OnNewPeers;
 
-        public void SetConnection()
-        {
-            RefreshHosts();
-        }
-
         public void RegisterHost(string username)
         {
             // Получение конфигурационной информации из app.config
             string port = ConfigurationManager.AppSettings["port"];
-            //string username = "lalal";
+            //username = Environment.MachineName;
             //string machineName = Environment.MachineName;
             string serviceUrl = null;
 

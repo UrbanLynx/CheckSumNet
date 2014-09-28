@@ -15,7 +15,6 @@ namespace ChecksumNet.Model
             logger.Info("Application is running.");
             provider.OnDataReceived += ProviderOnOnDataReceived;
             provider.OnNewPeers += ProviderOnOnNewPeers;
-            //provider.SetConnection();
         }
 
         private void ProviderOnOnNewPeers(PeerEntry peerEntry)
@@ -28,18 +27,17 @@ namespace ChecksumNet.Model
             OnDataUpdate();
         }
 
-        public void SetConnection()
+        public void RefreshHosts()
         {
-
-            provider.SetConnection();
-            IsConnected = true;
+            provider.RefreshHosts();
             OnDataUpdate();
         }
 
-        public void RefreshPeers()
+        public void RegisterHost()
         {
-            provider.RefreshHosts();
-            //OnPeerRefresh();
+            provider.RegisterHost(authentication.GetUsername());
+            IsRegistered = true;
+            OnDataUpdate();
         }
 
         public PeerEntry GetLocalPeer()
@@ -60,38 +58,22 @@ namespace ChecksumNet.Model
         public void NewChecksum(string filename)
         {
             provider.LocalPeer.Checksum = Checksum.CalculateChecksum(filename);
-            CompareChecksums();
             provider.Send(provider.LocalPeer.Checksum);
             OnDataUpdate();
-        }
-
-        public void CompareChecksums()
-        {
-            /*if (RemoteHost != null && RemoteHost.Checksum != null && LocalHost != null && LocalHost.Checksum != null)
-            {
-                IsChecksumsEqual = (LocalHost.Checksum == RemoteHost.Checksum);
-            }
-            else
-            {
-                IsChecksumsEqual = false;
-            }*/
-            
-            //Console.WriteLine("MD5 of remote computer: "+BitConverter.ToString(RemoteHost.Checksum).Replace("-","").ToLower());
         }
 
         public bool TryLogin(string username, string password)
         {
             if (authentication.Login(username, password))
             {
-                provider = new NetProvider(username);
+                RegisterHost();
                 return true;
             }
             
             return false;
         }
     
-        public bool IsConnected { get; set; }
-        public bool IsChecksumsEqual { get; set; }
+        public bool IsRegistered { get; set; }
 
         public delegate void DataChanged();
         public event DataChanged OnDataUpdate;

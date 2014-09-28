@@ -13,7 +13,7 @@ namespace ChecksumNet.Console
         static void Main(string[] args)
         {
             var manager = new ModelManager();
-            manager.SetConnection();
+            manager.RefreshHosts();
             //manager.StartListening();
 
             string path = @"D:\aa.txt";

@@ -14,6 +14,7 @@
         </Style>
         <Style TargetType="{x:Type TextBox}">
             <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="3"/>
         </Style>
         <Style TargetType="{x:Type Button}">
             <Setter Property="Margin" Value="5"/>
@@ -32,100 +33,50 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!--<Menu>
-            <MenuItem Header="File">
-                <MenuItem Header="Login" />
-                <MenuItem Header="Connect" />
-                <MenuItem Header="Open" />
-            </MenuItem>
-            <MenuItem Header="Help">
-              <MenuItem Header="About Checksum Net"></MenuItem>
-            </MenuItem>
-        </Menu>-->
-
         <Label Grid.Row="0" Grid.Column="0" Content="Текущий ПК"></Label>
-        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding LocalPeer.PeerName}" IsEnabled="False"></TextBox>
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding LocalPeer.PeerName}" IsReadOnly="True"></TextBox>
         <Button Grid.Row="0" Grid.Column="2" Command="{Binding LoginCommand}" Content="Авторизация"></Button>
 
         <Label Grid.Row="1" Grid.Column="0" Content="Файл"></Label>
-        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Filename}" IsEnabled="False"></TextBox>
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Filename}" IsReadOnly="True"></TextBox>
         <Button Grid.Row="1" Grid.Column="2" Command="{Binding BrowseCommand}" Content="Открыть файл ..."></Button>
 
         <Label Grid.Row="2" Grid.Column="0" Content="Мой хэш"></Label>
-        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding LocalPeer.Checksum}" IsEnabled="False"></TextBox>
+        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding LocalPeer.Checksum}" IsReadOnly="True"></TextBox>
 
-        <GroupBox Grid.Row="3" Grid.ColumnSpan="3">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                
-                <Button Grid.Row="0" Command="{Binding ConnectCommand}" Content="Обновить"></Button>
-                <ListBox Name="LstPeers" Grid.Row="1" Margin="5" ItemsSource="{Binding PeerList, Mode=TwoWay}" 
+        <Button Grid.Row="3" Grid.Column="1" Command="{Binding RefreshCommand}" Content="Обновить"></Button>
+        <ListBox Grid.Row="4" Grid.ColumnSpan="3" Margin="5" ItemsSource="{Binding PeerList, Mode=TwoWay}" 
                          IsEnabled="False" HorizontalContentAlignment="Stretch">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Border Margin="5" BorderThickness="1" BorderBrush="SteelBlue" CornerRadius="4" >
-                                <Grid Margin="3">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="5" BorderThickness="1" BorderBrush="SteelBlue" CornerRadius="4" >
+                        <Grid Margin="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                                    <Label Grid.Row="0" Grid.Column="0" Content="Удаленный ПК"></Label>
-                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding PeerName}" IsEnabled="False"></TextBox>
+                            <Label Grid.Row="0" Grid.Column="0" Content="Удаленный ПК"></Label>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding PeerName}" IsReadOnly="True"></TextBox>
 
-                                    <Label Grid.Row="1" Grid.Column="0" Content="Хэш удаленного ПК"></Label>
-                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Checksum}" IsEnabled="False"></TextBox>
+                            <Label Grid.Row="1" Grid.Column="0" Content="Хэш удаленного ПК"></Label>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Checksum}" IsReadOnly="True"></TextBox>
 
-                                    <Label Grid.Row="2" Grid.Column="0" Content="Хэши равны"></Label>
-                                    <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding IsChecksumsEqual}" 
+                            <Label Grid.Row="2" Grid.Column="0" Content="Хэши равны"></Label>
+                            <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding IsChecksumsEqual}" 
                                               IsEnabled="False" Margin="5" VerticalAlignment="Center" ></CheckBox>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </Grid>
-        </GroupBox>
-        
-
-        
-
-      <!--  <Label Grid.Row="1" Grid.Column="0" Content="Удаленный ПК"></Label>
-        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding RemoteIP}" IsEnabled="False"></TextBox>
-        <Button Grid.Row="1" Grid.Column="2" Command="{Binding ConnectCommand}" Content="Соединение"></Button>-->
-
-        
-        
-        
-        
-
-        <!--<Label Grid.Row="4" Grid.Column="0" Content="Хэш удаленного ПК"></Label>
-        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding RemoteHash}" IsEnabled="False"></TextBox>-->
-
-        <!--<Label Grid.Row="5" Grid.Column="0" Content="Хэши равны"></Label>
-        <CheckBox Grid.Row="5" Grid.Column="1" IsEnabled="False" IsChecked="{Binding IsChecksumsEqual}" 
-                  Margin="5" VerticalAlignment="Center" ></CheckBox>-->
-        
-
-        <!--<Button Grid.Row="1" Content="Connect"></Button>
-        
-        <GroupBox Grid.Row="3" Header="Компьютер 1">
-            <Label Content="123"></Label>
-        </GroupBox>
-        <GroupBox Grid.Row="4" Header="Компьютер 2">
-            <Label Content=""></Label>
-        </GroupBox>-->
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </Window>

@@ -59,12 +59,7 @@ namespace ChecksumNet.ViewModel
 
         private void OnDataChanged()
         {
-            OnPropertyChanged("LocalIP");
-            OnPropertyChanged("RemoteIP");
             OnPropertyChanged("Filename");
-            OnPropertyChanged("MyHash");
-            OnPropertyChanged("RemoteHash");
-            OnPropertyChanged("IsChecksumsEqual");
             OnPropertyChanged("LocalPeer");
             OnPropertyChanged("PeerList");
         }
@@ -101,66 +96,18 @@ namespace ChecksumNet.ViewModel
             set { localPeer = value; OnPropertyChanged("LocalPeer"); }
         }
 
-        public string LocalIP
-        {
-            set { OnPropertyChanged("LocalIP"); }
-            get
-            {
-                //if (Manager.LocalHost != null && Manager.LocalHost.IP != null) return Manager.LocalHost.IP.ToString();
-                return "";
-            }
-        }
-
-        public string RemoteIP
-        {
-            get
-            {
-                //if (Manager.RemoteHost != null && Manager.RemoteHost.IP != null) return Manager.RemoteHost.IP.ToString();
-                return "Нет соединения";
-            }
-            set { OnPropertyChanged("RemoteIP"); }
-        }
         public string Filename
         {
             get { return filename; }
             set { filename = value; OnPropertyChanged("Filename"); }
         }
-
-        public string MyHash
-        {
-            get
-            {
-                /*var peer = Manager.GetLocalPeer();
-                if (peer.Checksum != null)
-                    return peer.Checksum;*/
-                return "Файл не выбран";
-            }
-            set { OnPropertyChanged("MyHash"); }
-        }
-
-        public string RemoteHash
-        {
-            get
-            {
-                /*var peer = Manager.GetPeers().FirstOrDefault();
-                if (peer != null && peer.Checksum != null)
-                    return peer.Checksum;*/
-                return "Удаленный ПК не выбрал файл";
-            }
-            set { OnPropertyChanged("RemoteHash"); }
-        }
-
+        
         public bool IsLogedIn
         {
             get { return isLogedIn; }
-            set { isLogedIn = value; OnPropertyChanged("RemoteHash"); }
+            set { isLogedIn = value; OnPropertyChanged("IsLogedIn"); }
         }
 
-        public bool IsChecksumsEqual
-        {
-            get { return Manager.IsChecksumsEqual; }
-            set { OnPropertyChanged("IsChecksumsEqual"); }
-        }
         #endregion
 
 
@@ -170,7 +117,6 @@ namespace ChecksumNet.ViewModel
 
         void LoginExecute()
         {
-
             var vm = new LoginVM();
             var loginWindow = new LoginView
             {
@@ -192,24 +138,24 @@ namespace ChecksumNet.ViewModel
 
         #endregion
 
-        #region Connect
+        #region Refresh
 
-        void ConnectExecute()
+        void RefreshExecute()
         {
             PeerList = new List<PeerVM>();
-            Manager.SetConnection();
+            Manager.RefreshHosts();
             
             //Manager.StartListening();
         }
 
-        bool CanConnectExecute()
+        bool CanRefreshExecute()
         {
-            return true;
-            //return IsLogedIn;
+            //return true;
+            return IsLogedIn;
         }
-        public ICommand ConnectCommand
+        public ICommand RefreshCommand
         {
-            get { return new RelayCommand(param => this.ConnectExecute(), param => this.CanConnectExecute()); }
+            get { return new RelayCommand(param => this.RefreshExecute(), param => this.CanRefreshExecute()); }
         }
 
 
@@ -232,8 +178,8 @@ namespace ChecksumNet.ViewModel
 
         bool CanBrowseExecute()
         {
-            return true;
-            //return IsLogedIn && Manager.IsConnected;
+            //return true;
+            return IsLogedIn;
         }
         public ICommand BrowseCommand
         {

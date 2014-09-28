@@ -29,8 +29,9 @@ namespace ChecksumNet.ViewModel
                 MessageBox.Show("Неправильное имя пользователя или пароль.");
                 return false;
             }
+            
             MainViewModel.Instance.IsLogedIn = true;
-            MessageBox.Show("Здравствуйте, " + Username + ", вы успешно вошли.");
+            //MessageBox.Show("Здравствуйте, " + Username + ", вы успешно вошли.");
             CloseWindow(); 
             return true;
         }
@@ -75,25 +76,6 @@ namespace ChecksumNet.ViewModel
         public ICommand Authenticate
         {
             get { return new RelayCommand(param => this.AuthenticateExecute(), param => this.CanAuthenticateExecute()); }
-        }
-
-
-        #endregion
-
-        #region Cancel
-
-        void CancelExecute()
-        {
-            CloseWindow();
-        }
-
-        bool CanCancelExecute()
-        {
-            return true;
-        }
-        public ICommand Cancel
-        {
-            get { return new RelayCommand(param => this.CancelExecute(), param => this.CanCancelExecute()); }
         }
 
 
