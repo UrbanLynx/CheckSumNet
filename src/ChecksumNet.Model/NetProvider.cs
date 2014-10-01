@@ -43,7 +43,7 @@ namespace ChecksumNet.Model
         {
             // Получение конфигурационной информации из app.config
             string port = ConfigurationManager.AppSettings["port"];
-            //username = Environment.MachineName;
+            username = Environment.MachineName;
             //string machineName = Environment.MachineName;
             string serviceUrl = null;
 
@@ -83,7 +83,7 @@ namespace ChecksumNet.Model
             }
 
             // Создание имени равноправного участника (пира)
-            LocalPeer.PeerName = new PeerName("P2P Checksums", PeerNameType.Unsecured);
+            LocalPeer.PeerName = new PeerName("P2P Sample", PeerNameType.Unsecured);
 
             // Подготовка процесса регистрации имени равноправного участника в локальном облаке
             peerNameRegistration = new PeerNameRegistration(LocalPeer.PeerName, int.Parse(port));
@@ -126,7 +126,7 @@ namespace ChecksumNet.Model
             // TODO: RefreshButton.IsEnabled = false;
 
             // Преобразование незащищенных имен пиров асинхронным образом
-            resolver.ResolveAsync(new PeerName("P2P Checksums", PeerNameType.Unsecured), 1);
+            resolver.ResolveAsync(new PeerName("0.P2P Sample"), 1);
         }
 
         private void resolver_ResolveCompleted(object sender, ResolveCompletedEventArgs e)

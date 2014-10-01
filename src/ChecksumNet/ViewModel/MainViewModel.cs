@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -20,7 +21,7 @@ namespace ChecksumNet.ViewModel
 
         private string filename;
         private bool isLogedIn = false;
-        private List<PeerVM> peerList;
+        private ObservableCollection<PeerVM> peerList;
         private PeerVM localPeer;
 
         #endregion
@@ -84,7 +85,7 @@ namespace ChecksumNet.ViewModel
 
         public ModelManager Manager { get; set; }
 
-        public List<PeerVM> PeerList
+        public ObservableCollection<PeerVM> PeerList
         {
             get { return peerList; }
             set { peerList = value; OnPropertyChanged("PeerList"); }
@@ -142,7 +143,7 @@ namespace ChecksumNet.ViewModel
 
         void RefreshExecute()
         {
-            PeerList = new List<PeerVM>();
+            PeerList = new ObservableCollection<PeerVM>();
             Manager.RefreshHosts();
             
             //Manager.StartListening();
