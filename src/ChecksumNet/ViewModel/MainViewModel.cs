@@ -190,7 +190,25 @@ namespace ChecksumNet.ViewModel
         
 
         #endregion
-        
+
+        #region About
+
+        void AboutExecute()
+        {
+            MessageBox.Show("Программа написана коллективом Мушиц С., Переверзев В., ИУ7-71, 2014г.");
+        }
+
+        bool CanAboutExecute()
+        {
+            return true;
+        }
+        public ICommand AboutCommand
+        {
+            get { return new RelayCommand(param => this.AboutExecute(), param => this.CanAboutExecute()); }
+        }
+
+        #endregion
+
         #endregion
     }
 }

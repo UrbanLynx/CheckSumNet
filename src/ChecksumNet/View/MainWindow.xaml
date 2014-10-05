@@ -48,6 +48,8 @@
         <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding LocalPeer.Checksum}" IsReadOnly="True"></TextBox>
 
         <Button Grid.Row="3" Grid.Column="1" Command="{Binding RefreshCommand}" Content="Обновить"></Button>
+        <Button Grid.Row="3" Grid.Column="2" Command="{Binding AboutCommand}" Content="О программе"></Button>
+        
         <ListBox Grid.Row="4" Grid.ColumnSpan="3" Margin="5" ItemsSource="{Binding PeerList, Mode=TwoWay}" 
                          IsEnabled="False" HorizontalContentAlignment="Stretch">
             <ListBox.ItemTemplate>

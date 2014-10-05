@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.PeerToPeer;
+using System.Net.PeerToPeer.Collaboration;
 using System.Net.Sockets;
 using System.ServiceModel;
 using NLog;
@@ -46,7 +47,7 @@ namespace ChecksumNet.Model
             username = Environment.MachineName;
             //string machineName = Environment.MachineName;
             string serviceUrl = null;
-
+            logger.Info("Start registering host with username {0} on port {1}", username, port);
 
             //  Получение URL-адреса службы с использованием адресаIPv4 
             //  и порта из конфигурационного файла
@@ -76,21 +77,25 @@ namespace ChecksumNet.Model
             try
             {
                 host.Open();
+                // Создание имени равноправного участника (пира)
+                LocalPeer.PeerName = new PeerName("P2P Sample", PeerNameType.Unsecured);
+
+                // Подготовка процесса регистрации имени равноправного участника в локальном облаке
+                peerNameRegistration = new PeerNameRegistration(LocalPeer.PeerName, int.Parse(port));
+                peerNameRegistration.Cloud = Cloud.AllLinkLocal;
+
+                // Запуск процесса регистрации
+                peerNameRegistration.Start();
+
+                logger.Info("Registration of host is successfully completed. Host name: {0}. Service URL: {1}.", 
+                    username, serviceUrl);
             }
             catch (AddressAlreadyInUseException)
             {
-                logger.Info("Ошибка WCF. Не удается начать прослушивание, порт занят.");
+                logger.Error("WCF Error: can't begin listening, port '{0}' is used by another program.", port);
             }
 
-            // Создание имени равноправного участника (пира)
-            LocalPeer.PeerName = new PeerName("P2P Sample", PeerNameType.Unsecured);
-
-            // Подготовка процесса регистрации имени равноправного участника в локальном облаке
-            peerNameRegistration = new PeerNameRegistration(LocalPeer.PeerName, int.Parse(port));
-            peerNameRegistration.Cloud = Cloud.AllLinkLocal;
-
-            // Запуск процесса регистрации
-            peerNameRegistration.Start();
+            
         }
 
         private void ServiceProxyOnReceivedData(object sender, ReceivedDataEventArgs receivedDataEventArgs)
@@ -101,7 +106,15 @@ namespace ChecksumNet.Model
             if (fromPeer != null)
             {
                 fromPeer.Checksum = receivedDataEventArgs.Data;
+                logger.Info("New data from peer '{0}'. Data: '{1}'",
+                    fromPeer.DisplayString, fromPeer.Checksum);
                 OnDataReceived();
+            }
+            else
+            {
+                logger.Error("New data from unknown peer '{0}'. Data: '{1}'",
+                    receivedDataEventArgs.FromPeer.PeerHostName, receivedDataEventArgs.Data);
+                    
             }
         }
 
@@ -116,6 +129,7 @@ namespace ChecksumNet.Model
 
         public void RefreshHosts()
         {
+            logger.Info("Start refreshing of hosts...");
             // Создание распознавателя и добавление обработчиков событий
             var resolver = new PeerNameResolver();
             resolver.ResolveProgressChanged += resolver_ResolveProgressChanged;
@@ -131,7 +145,7 @@ namespace ChecksumNet.Model
 
         private void resolver_ResolveCompleted(object sender, ResolveCompletedEventArgs e)
         {
-            
+            logger.Info("Refreshing of hosts is completed.");
             // TODO: Сообщение об ошибке, если в облаке не найдены пиры
             /*if (PeerList.Count == 0)
             {
@@ -156,6 +170,7 @@ namespace ChecksumNet.Model
                 {
                     try
                     {
+                        logger.Info("Found new remote peer with IP: {0}:{1}. Start registering new peer ...", ep.Address, ep.Port);
                         string endpointUrl = string.Format("net.tcp://{0}:{1}/P2PService", ep.Address, ep.Port);
                         var binding = new NetTcpBinding();
                         binding.Security.Mode = SecurityMode.None;
@@ -170,16 +185,20 @@ namespace ChecksumNet.Model
                         };
                         PeerList.Add(newPeer);
                         OnNewPeers(newPeer);
+                        logger.Info("New remote peer is successfully registered. Remote peer name: {0}", 
+                            newPeer.DisplayString);
                     }
                     catch (EndpointNotFoundException)
                     {
-                        PeerList.Add(
+                        logger.Error("Can't register remote peer with IP: {0}:{1}. Endpoint is not found.", 
+                            ep.Address, ep.Port);
+                        /*PeerList.Add(
                             new PeerEntry
                             {
                                 PeerName = peer.PeerName,
                                 DisplayString = "Неизвестный пир",
                                 //CanConnect = false
-                            });
+                            });*/
                     }
                 }
             }
@@ -187,6 +206,7 @@ namespace ChecksumNet.Model
 
         public void Send(string data)
         {
+            logger.Info("Start sending data to remote hosts. Data: {0}", data);
             foreach (var peerEntry in PeerList)
             {
                 // Получение пира и прокси, для отправки сообщения
@@ -195,10 +215,11 @@ namespace ChecksumNet.Model
                     try
                     {
                         peerEntry.ServiceProxy.SendMessage(data, LocalPeer.PeerName);
+                        logger.Info("Data sent to remote host '{0}'",peerEntry.DisplayString);
                     }
-                    catch (CommunicationException)
+                    catch (CommunicationException ce)
                     {
-
+                        logger.Error("This PC can't connect to remote peer '{0}'", peerEntry.DisplayString);
                     }
                 }
             }

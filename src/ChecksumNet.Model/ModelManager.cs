@@ -12,7 +12,7 @@ namespace ChecksumNet.Model
 
         public ModelManager()
         {
-            logger.Info("Application is running.");
+            logger.Info("Application started.");
             provider.OnDataReceived += ProviderOnOnDataReceived;
             provider.OnNewPeers += ProviderOnOnNewPeers;
         }
@@ -57,15 +57,19 @@ namespace ChecksumNet.Model
         }*/
         public void NewChecksum(string filename)
         {
+            logger.Info("Start calculating checksum ...");
             provider.LocalPeer.Checksum = Checksum.CalculateChecksum(filename);
+            logger.Info("Checksum is successfully calculated. MD5: {0}", provider.LocalPeer.Checksum);
             provider.Send(provider.LocalPeer.Checksum);
             OnDataUpdate();
         }
 
         public bool TryLogin(string username, string password)
         {
+            logger.Info("Attempt to login with username: '{0}'", username);
             if (authentication.Login(username, password))
             {
+                logger.Info("User '{0}' is successfully loged in",username);
                 RegisterHost();
                 return true;
             }
