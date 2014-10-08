@@ -6,9 +6,15 @@ namespace ChecksumNet.Model
 {
     public class ModelManager
     {
+        #region Members
+
         private NetProvider provider = new NetProvider();
         private Authentication authentication = new Authentication();
         private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        #endregion
+
+        #region Constructors
 
         public ModelManager()
         {
@@ -16,6 +22,25 @@ namespace ChecksumNet.Model
             provider.OnDataReceived += ProviderOnOnDataReceived;
             provider.OnNewPeers += ProviderOnOnNewPeers;
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool IsRegistered { get; set; }
+
+        public delegate void DataChanged();
+
+        public event DataChanged OnDataUpdate;
+
+        public delegate void NewPeer(PeerEntry peerEntry);
+
+        public event NewPeer OnNewPeer;
+        //public event UpdateData OnNewPeer;
+
+        #endregion
+
+        #region Methods
 
         private void ProviderOnOnNewPeers(PeerEntry peerEntry)
         {
@@ -48,13 +73,14 @@ namespace ChecksumNet.Model
         public List<PeerEntry> GetPeers()
         {
             return provider.PeerList;
-        } 
+        }
 
         /*public void StartListening()
         {
             provider.onDataReceived += ReceiveData;
             //provider.StartListening();
         }*/
+
         public void NewChecksum(string filename)
         {
             logger.Info("Start calculating checksum ...");
@@ -69,21 +95,14 @@ namespace ChecksumNet.Model
             logger.Info("Attempt to login with username: '{0}'", username);
             if (authentication.Login(username, password))
             {
-                logger.Info("User '{0}' is successfully loged in",username);
+                logger.Info("User '{0}' is successfully loged in", username);
                 RegisterHost();
                 return true;
             }
-            
+
             return false;
         }
-    
-        public bool IsRegistered { get; set; }
 
-        public delegate void DataChanged();
-        public event DataChanged OnDataUpdate;
-
-        public delegate void NewPeer(PeerEntry peerEntry);
-        public event NewPeer OnNewPeer;
-        //public event UpdateData OnNewPeer;
+        #endregion
     }
 }

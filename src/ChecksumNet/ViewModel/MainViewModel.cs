@@ -111,7 +111,6 @@ namespace ChecksumNet.ViewModel
 
         #endregion
 
-
         #region Commands
 
         #region Login

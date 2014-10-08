@@ -13,58 +13,42 @@ namespace ChecksumNet.Model
 {
     public class NetProvider
     {
-        public delegate void ProcessData();
+        #region Members
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
-
-        public List<PeerEntry> PeerList = new List<PeerEntry>();
-        public PeerEntry LocalPeer = new PeerEntry();
 
         // для управления службой wcf и pnrp
         private ServiceHost host;
         private PeerNameRegistration peerNameRegistration;
-        
-        public NetProvider()
-        {
-            //RegisterHost(Environment.MachineName);
-            //RegisterHost("qw");
-        }
 
-        /*public NetProvider(string username)
-        {
-            RegisterHost(username);
-        }*/
+        #endregion
+
+        #region Properties
+
+        public List<PeerEntry> PeerList = new List<PeerEntry>();
+        public PeerEntry LocalPeer = new PeerEntry();
+
+        public delegate void ProcessData();
 
         public event ProcessData OnDataReceived;
 
         public delegate void NewPeer(PeerEntry peerEntry);
+
         public event NewPeer OnNewPeers;
+
+        #endregion
+
+        #region Methods
 
         public void RegisterHost(string username)
         {
             // Получение конфигурационной информации из app.config
             string port = ConfigurationManager.AppSettings["port"];
-            username = Environment.MachineName;
+            //username = Environment.MachineName;
             //string machineName = Environment.MachineName;
-            string serviceUrl = null;
+            //string serviceUrl = null;
             logger.Info("Start registering host with username {0} on port {1}", username, port);
-
-            //  Получение URL-адреса службы с использованием адресаIPv4 
-            //  и порта из конфигурационного файла
-            foreach (IPAddress address in Dns.GetHostAddresses(Dns.GetHostName()))
-            {
-                if (address.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    serviceUrl = string.Format("net.tcp://{0}:{1}/P2PService", address, port);
-                    break;
-                }
-            }
-
-            // Выполнение проверки, не является ли адрес null
-            if (serviceUrl == null)
-            {
-                logger.Info("Не удается определить адрес конечной точки WCF.");
-            }
+            string serviceUrl = string.Format("net.tcp://0.0.0.0:{0}/P2PService", port);
 
             // Регистрация и запуск службы WCF
             LocalPeer.ServiceProxy = new P2PService(username);
@@ -87,7 +71,7 @@ namespace ChecksumNet.Model
                 // Запуск процесса регистрации
                 peerNameRegistration.Start();
 
-                logger.Info("Registration of host is successfully completed. Host name: {0}. Service URL: {1}.", 
+                logger.Info("Registration of host is successfully completed. Host name: {0}. Service URL: {1}.",
                     username, serviceUrl);
             }
             catch (AddressAlreadyInUseException)
@@ -95,7 +79,7 @@ namespace ChecksumNet.Model
                 logger.Error("WCF Error: can't begin listening, port '{0}' is used by another program.", port);
             }
 
-            
+
         }
 
         private void ServiceProxyOnReceivedData(object sender, ReceivedDataEventArgs receivedDataEventArgs)
@@ -114,7 +98,7 @@ namespace ChecksumNet.Model
             {
                 logger.Error("New data from unknown peer '{0}'. Data: '{1}'",
                     receivedDataEventArgs.FromPeer.PeerHostName, receivedDataEventArgs.Data);
-                    
+
             }
         }
 
@@ -146,16 +130,6 @@ namespace ChecksumNet.Model
         private void resolver_ResolveCompleted(object sender, ResolveCompletedEventArgs e)
         {
             logger.Info("Refreshing of hosts is completed.");
-            // TODO: Сообщение об ошибке, если в облаке не найдены пиры
-            /*if (PeerList.Count == 0)
-            {
-                PeerList.Add(
-                    new PeerEntry
-                    {
-                        DisplayString = "Пиры не найдены.",
-                        CanConnect = false
-                    });
-            }*/
             // Повторно включаем кнопку "обновить"
             // TODO: RefreshButton.IsEnabled = true;
         }
@@ -170,7 +144,8 @@ namespace ChecksumNet.Model
                 {
                     try
                     {
-                        logger.Info("Found new remote peer with IP: {0}:{1}. Start registering new peer ...", ep.Address, ep.Port);
+                        logger.Info("Found new remote peer with IP: {0}:{1}. Start registering new peer ...", ep.Address,
+                            ep.Port);
                         string endpointUrl = string.Format("net.tcp://{0}:{1}/P2PService", ep.Address, ep.Port);
                         var binding = new NetTcpBinding();
                         binding.Security.Mode = SecurityMode.None;
@@ -180,17 +155,16 @@ namespace ChecksumNet.Model
                         {
                             PeerName = peer.PeerName,
                             ServiceProxy = serviceProxy,
-                            DisplayString = serviceProxy.GetName(),
-                            //CanConnect = true
+                            DisplayString = serviceProxy.GetName()
                         };
                         PeerList.Add(newPeer);
                         OnNewPeers(newPeer);
-                        logger.Info("New remote peer is successfully registered. Remote peer name: {0}", 
+                        logger.Info("New remote peer is successfully registered. Remote peer name: {0}",
                             newPeer.DisplayString);
                     }
-                    catch (EndpointNotFoundException)
+                    catch (EndpointNotFoundException enfe)
                     {
-                        logger.Error("Can't register remote peer with IP: {0}:{1}. Endpoint is not found.", 
+                        logger.Error("Can't register remote peer with IP: {0}:{1}. Endpoint is not found.",
                             ep.Address, ep.Port);
                         /*PeerList.Add(
                             new PeerEntry
@@ -215,7 +189,7 @@ namespace ChecksumNet.Model
                     try
                     {
                         peerEntry.ServiceProxy.SendMessage(data, LocalPeer.PeerName);
-                        logger.Info("Data sent to remote host '{0}'",peerEntry.DisplayString);
+                        logger.Info("Data sent to remote host '{0}'", peerEntry.DisplayString);
                     }
                     catch (CommunicationException ce)
                     {
@@ -223,9 +197,9 @@ namespace ChecksumNet.Model
                     }
                 }
             }
-            
+
         }
 
-        
+        #endregion
     }
 }
