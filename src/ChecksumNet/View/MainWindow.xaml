@@ -33,24 +33,38 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Label Grid.Row="0" Grid.Column="0" Content="Текущий ПК"></Label>
-        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding LocalPeer.PeerName}" IsReadOnly="True"></TextBox>
-        <Button Grid.Row="0" Grid.Column="2" Command="{Binding LoginCommand}" Content="Авторизация"></Button>
+        <Menu Grid.ColumnSpan="3">
+            <MenuItem Header="Файл">
+                <MenuItem Header="Авторизация" Command="{Binding LoginCommand}"></MenuItem>
+                <MenuItem Header="Обновить" Command="{Binding RefreshCommand}"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Правка">
+                <MenuItem Header="Открыть файл ..." Command="{Binding BrowseCommand}"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Помощь">
+                <MenuItem Header="О программе" Command="{Binding AboutCommand}"></MenuItem>
+            </MenuItem>
+        </Menu>
 
-        <Label Grid.Row="1" Grid.Column="0" Content="Файл"></Label>
-        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Filename}" IsReadOnly="True"></TextBox>
-        <Button Grid.Row="1" Grid.Column="2" Command="{Binding BrowseCommand}" Content="Открыть файл ..."></Button>
+        <Label Grid.Row="1" Grid.Column="0" Content="Текущий ПК"></Label>
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding LocalPeer.PeerName}" IsReadOnly="True"></TextBox>
+        <Button Grid.Row="1" Grid.Column="2" Command="{Binding LoginCommand}" Content="Авторизация"></Button>
 
-        <Label Grid.Row="2" Grid.Column="0" Content="Мой хэш"></Label>
-        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding LocalPeer.Checksum}" IsReadOnly="True"></TextBox>
+        <Label Grid.Row="2" Grid.Column="0" Content="Файл"></Label>
+        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Filename}" IsReadOnly="True"></TextBox>
+        <Button Grid.Row="2" Grid.Column="2" Command="{Binding BrowseCommand}" Content="Открыть файл ..."></Button>
 
-        <Button Grid.Row="3" Grid.Column="1" Command="{Binding RefreshCommand}" Content="Обновить"></Button>
-        <Button Grid.Row="3" Grid.Column="2" Command="{Binding AboutCommand}" Content="О программе"></Button>
+        <Label Grid.Row="3" Grid.Column="0" Content="Мой хэш"></Label>
+        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding LocalPeer.Checksum}" IsReadOnly="True"></TextBox>
+
+        <Button Grid.Row="4" Grid.Column="1" Command="{Binding RefreshCommand}" Content="Обновить"></Button>
+        <!--<Button Grid.Row="4" Grid.Column="2" Command="{Binding AboutCommand}" Content="О программе"></Button>-->
         
-        <ListBox Grid.Row="4" Grid.ColumnSpan="3" Margin="5" ItemsSource="{Binding PeerList, Mode=TwoWay}" 
+        <ListBox Grid.Row="5" Grid.ColumnSpan="3" Margin="5" ItemsSource="{Binding PeerList, Mode=TwoWay}" 
                          IsEnabled="False" HorizontalContentAlignment="Stretch">
             <ListBox.ItemTemplate>
                 <DataTemplate>

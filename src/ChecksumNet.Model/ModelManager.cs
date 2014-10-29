@@ -18,7 +18,7 @@ namespace ChecksumNet.Model
 
         public ModelManager()
         {
-            logger.Info("Application started.");
+            logger.Info("КТО: данный компьютер. ЧТО: запуск приложения. РЕЗУЛЬТАТ: успешно.");
             provider.OnDataReceived += ProviderOnOnDataReceived;
             provider.OnNewPeers += ProviderOnOnNewPeers;
         }
@@ -83,19 +83,19 @@ namespace ChecksumNet.Model
 
         public void NewChecksum(string filename)
         {
-            logger.Info("Start calculating checksum ...");
+            
             provider.LocalPeer.Checksum = Checksum.CalculateChecksum(filename);
-            logger.Info("Checksum is successfully calculated. MD5: {0}", provider.LocalPeer.Checksum);
+            logger.Info("КТО: пользователь {0}. ЧТО: попытка подсчета контрольной суммы. РЕЗУЛЬТАТ: успешно. MD5: {1}",
+                authentication.GetUsername(), provider.LocalPeer.Checksum);
             provider.Send(provider.LocalPeer.Checksum);
             OnDataUpdate();
         }
 
         public bool TryLogin(string username, string password)
         {
-            logger.Info("Attempt to login with username: '{0}'", username);
             if (authentication.Login(username, password))
             {
-                logger.Info("User '{0}' is successfully loged in", username);
+                logger.Info("КТО: пользователь {0}. ЧТО: попытка авторизации. РЕЗУЛЬТАТ: успешно", username);
                 RegisterHost();
                 return true;
             }

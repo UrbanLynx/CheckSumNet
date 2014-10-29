@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using ChecksumNet.Model;
+using NLog;
 
 namespace ChecksumNet.ViewModel
 {
@@ -11,6 +12,9 @@ namespace ChecksumNet.ViewModel
 
         private string _username;
         private string _password;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         #endregion
 
         #region Constructors   
@@ -27,6 +31,7 @@ namespace ChecksumNet.ViewModel
             if (!isLogin)
             {
                 MessageBox.Show("Неправильное имя пользователя или пароль.");
+                logger.Info("ОШИБКА. КТО: пользователь {0}. ЧТО: попытка авторизации. РЕЗУЛЬТАТ: неудача", Username);
                 return false;
             }
             

@@ -17,7 +17,8 @@ namespace ChecksumNet
         private void Application_Exit(object sender, ExitEventArgs e)
         {
             Logger logger = LogManager.GetCurrentClassLogger();
-            logger.Info("Application successfully exit.");
+
+            //logger.Info("КТО: Application successfully exit.");
         }
     }
 }
