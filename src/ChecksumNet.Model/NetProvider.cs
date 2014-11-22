@@ -44,10 +44,6 @@ namespace ChecksumNet.Model
         {
             // Получение конфигурационной информации из app.config
             string port = ConfigurationManager.AppSettings["port"];
-            //username = Environment.MachineName;
-            //string machineName = Environment.MachineName;
-            //string serviceUrl = null;
-            //logger.Info("Start registering host with username {0} on port {1}", username, port);
             string serviceUrl = string.Format("net.tcp://0.0.0.0:{0}/P2PService", port);
 
             // Регистрация и запуск службы WCF
@@ -72,17 +68,14 @@ namespace ChecksumNet.Model
                 peerNameRegistration.Start();
 
                 logger.Info(
-                    "КТО: пользователь {0}. ЧТО: запуск регистрации хоста на порте {1}. РЕЗУЛЬТАТ: успешно. Имя хоста - {1}",
-                    username, serviceUrl);/*
-                logger.Info("Registration of host is successfully completed. Host name: {0}. Service URL: {1}.",
-                    username, serviceUrl);*/
+                    "КТО: пользователь {0}. ЧТО: запуск регистрации хоста на порте {1}. РЕЗУЛЬТАТ: успешно. Имя хоста - {2}",
+                    username, port, serviceUrl);
             }
             catch (AddressAlreadyInUseException)
             {
                 logger.Error(
                     "ОШИБКА. КТО: пользователь{0}. ЧТО: запуск регистрации хоста на порте {1}. РЕЗУЛЬТАТ: неудача. Ошибка WCF: невозможно начать прослушивание на порте {1}, он используется другой программой",
                     username, port);
-                //logger.Error("WCF Error: can't begin listening, port '{0}' is used by another program.", port);
             }
 
 
@@ -99,17 +92,12 @@ namespace ChecksumNet.Model
 
                 logger.Info("КТО: пользователь {0}. ЧТО: получение данных от пользователя. РЕЗУЛЬТАТ: данные: {1}",
                     fromPeer.DisplayString, fromPeer.Checksum);
-                /*logger.Info("New data from peer '{0}'. Data: '{1}'",
-                    fromPeer.DisplayString, fromPeer.Checksum);*/
                 OnDataReceived();
             }
             else
             {
-                logger.Error("ОШИБКА. КТО: неизвестный пользователь. ЧТО: получение данных от пользователя. РЕЗУЛЬТАТ: пользователь неопознан. Данные: {1}",
-                    fromPeer.DisplayString, fromPeer.Checksum);
-                /*logger.Error("New data from unknown peer '{0}'. Data: '{1}'",
-                    receivedDataEventArgs.FromPeer.PeerHostName, receivedDataEventArgs.Data);*/
-
+                logger.Error("ОШИБКА. КТО: неизвестный пользователь. ЧТО: получение данных от пользователя. РЕЗУЛЬТАТ: пользователь неопознан. Данные: {0}",
+                    receivedDataEventArgs.Data);
             }
         }
 
@@ -124,9 +112,8 @@ namespace ChecksumNet.Model
 
         public void RefreshHosts()
         {
-            logger.Info("КТО: пользователь {0}. ЧТО: попытка обновления хостов. РЕЗУЛЬТАТ: успешно",
+            logger.Info("КТО: пользователь {0}. ЧТО: попытка обновления хостов. РЕЗУЛЬТАТ: в процессе",
                     LocalPeer.DisplayString);
-            //logger.Info("Start refreshing of hosts...");
             // Создание распознавателя и добавление обработчиков событий
             var resolver = new PeerNameResolver();
             resolver.ResolveProgressChanged += resolver_ResolveProgressChanged;
@@ -134,7 +121,6 @@ namespace ChecksumNet.Model
 
             // Подготовка к добавлению новых пиров
             PeerList.Clear();
-            // TODO: RefreshButton.IsEnabled = false;
 
             // Преобразование незащищенных имен пиров асинхронным образом
             resolver.ResolveAsync(new PeerName("0.P2P Sample"), 1);
@@ -144,9 +130,6 @@ namespace ChecksumNet.Model
         {
             logger.Info("КТО: пользователь {0}. ЧТО: завершение обновления хостов. РЕЗУЛЬТАТ: успешно",
                     LocalPeer.DisplayString);
-            //logger.Info("Refreshing of hosts is completed.");
-            // Повторно включаем кнопку "обновить"
-            // TODO: RefreshButton.IsEnabled = true;
         }
 
         private void resolver_ResolveProgressChanged(object sender, ResolveProgressChangedEventArgs e)
@@ -159,8 +142,6 @@ namespace ChecksumNet.Model
                 {
                     try
                     {
-                        logger.Info("Found new remote peer with IP: {0}:{1}. Start registering new peer ...", ep.Address,
-                            ep.Port);
                         string endpointUrl = string.Format("net.tcp://{0}:{1}/P2PService", ep.Address, ep.Port);
                         var binding = new NetTcpBinding();
                         binding.Security.Mode = SecurityMode.None;
@@ -176,23 +157,12 @@ namespace ChecksumNet.Model
                         OnNewPeers(newPeer);
                         logger.Info("КТО: пользователь {0}. ЧТО: регистрация удаленного хоста {1}. РЕЗУЛЬТАТ: успешно",
                             LocalPeer.DisplayString, newPeer.DisplayString);
-                        /*logger.Info("New remote peer is successfully registered. Remote peer name: {0}",
-                            newPeer.DisplayString);*/
                     }
                     catch (EndpointNotFoundException enfe)
                     {
                         logger.Error(
                             "ОШИБКА. КТО: пользователь {0}. ЧТО: регистрация удаленного хоста c IP: {1}:{2}. РЕЗУЛЬТАТ: неудача",
                             LocalPeer.DisplayString, ep.Address, ep.Port);
-                        /*logger.Error("Can't register remote peer with IP: {0}:{1}. Endpoint is not found.",
-                            ep.Address, ep.Port);*/
-                        /*PeerList.Add(
-                            new PeerEntry
-                            {
-                                PeerName = peer.PeerName,
-                                DisplayString = "Неизвестный пир",
-                                //CanConnect = false
-                            });*/
                     }
                 }
             }
@@ -200,7 +170,6 @@ namespace ChecksumNet.Model
 
         public void Send(string data)
         {
-            //logger.Info("Start sending data to remote hosts. Data: {0}", data);
             logger.Info("КТО: пользователь {0}. ЧТО: попытка отправления данных {1} удаленным хостам. РЕЗУЛЬТАТ: в процессе",
                             LocalPeer.DisplayString, data);
             foreach (var peerEntry in PeerList)
@@ -213,13 +182,11 @@ namespace ChecksumNet.Model
                         peerEntry.ServiceProxy.SendMessage(data, LocalPeer.PeerName);
                         logger.Info("КТО: пользователь {0}. ЧТО: отправление данных удаленному хосту {1}. РЕЗУЛЬТАТ: успешно.",
                             LocalPeer.DisplayString, peerEntry.DisplayString);
-                        //logger.Info("Data sent to remote host '{0}'", peerEntry.DisplayString);
                     }
                     catch (CommunicationException ce)
                     {
-                        logger.Error("КТО: пользователь {0}. ЧТО: отправление данных удаленному хосту {1}. РЕЗУЛЬТАТ: неудача. Невозможно соединиться с удаленным хостом.",
+                        logger.Error("ОШИБКА. КТО: пользователь {0}. ЧТО: отправление данных удаленному хосту {1}. РЕЗУЛЬТАТ: неудача. Невозможно соединиться с удаленным хостом.",
                             LocalPeer.DisplayString, peerEntry.DisplayString);
-                        //logger.Error("This PC can't connect to remote peer '{0}'", peerEntry.DisplayString);
                     }
                 }
             }

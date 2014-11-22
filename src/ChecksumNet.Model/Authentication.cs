@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using NLog;
 
 namespace ChecksumNet.Model
 {
@@ -67,7 +68,7 @@ namespace ChecksumNet.Model
             }
             catch (Exception exc)
             {
-                // do smthng   
+                LogManager.GetCurrentClassLogger().Error("ОШИБКА. КТО: текущий пользователь. ЧТО: попытка загрузки файла аутентификации. РЕЗУЛЬТАТ: неудача.");   
             }
         }
     }

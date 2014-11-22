@@ -36,7 +36,6 @@ namespace ChecksumNet.Model
         public delegate void NewPeer(PeerEntry peerEntry);
 
         public event NewPeer OnNewPeer;
-        //public event UpdateData OnNewPeer;
 
         #endregion
 
@@ -74,12 +73,6 @@ namespace ChecksumNet.Model
         {
             return provider.PeerList;
         }
-
-        /*public void StartListening()
-        {
-            provider.onDataReceived += ReceiveData;
-            //provider.StartListening();
-        }*/
 
         public void NewChecksum(string filename)
         {

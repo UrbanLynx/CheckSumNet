@@ -1,0 +1,3 @@
+создать сеть 
+netsh wlan set hostednetwork mode=allow ssid=ИМЯ key=КЛЮЧ
+netsh wlan start hostednetwork

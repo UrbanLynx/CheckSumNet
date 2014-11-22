@@ -144,13 +144,10 @@ namespace ChecksumNet.ViewModel
         {
             PeerList = new ObservableCollection<PeerVM>();
             Manager.RefreshHosts();
-            
-            //Manager.StartListening();
         }
 
         bool CanRefreshExecute()
         {
-            //return true;
             return IsLogedIn;
         }
         public ICommand RefreshCommand
@@ -178,7 +175,6 @@ namespace ChecksumNet.ViewModel
 
         bool CanBrowseExecute()
         {
-            //return true;
             return IsLogedIn;
         }
         public ICommand BrowseCommand

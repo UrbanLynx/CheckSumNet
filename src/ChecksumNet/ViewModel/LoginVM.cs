@@ -36,7 +36,6 @@ namespace ChecksumNet.ViewModel
             }
             
             MainViewModel.Instance.IsLogedIn = true;
-            //MessageBox.Show("Здравствуйте, " + Username + ", вы успешно вошли.");
             CloseWindow(); 
             return true;
         }

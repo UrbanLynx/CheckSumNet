@@ -29,7 +29,6 @@ namespace ChecksumNet.Model
         public void SendMessage(string message, PeerName from)
         {
             ReceivedData(from, new ReceivedDataEventArgs(message, from));
-            //OnNewMessage(message, from);
         }
     }
 }
