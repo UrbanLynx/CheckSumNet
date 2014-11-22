@@ -8,18 +8,21 @@ using System.Threading.Tasks;
 
 namespace ChecksumNet.Model
 {
+    // внешний интерфейс равноправного участника сети, контракт сервиса WCF
     [ServiceContract]
-    public interface IP2PService
+    public interface IP2PService 
     {
-        event EventHandler<ReceivedDataEventArgs> ReceivedData;
+        event EventHandler<ReceivedDataEventArgs> ReceivedData; // событие получения данных
 
+        // публичные операции локального сервиса, контракты операций WCF
         [OperationContract]
-        string GetName();
+        string GetName(); // получение имени пользователя 
 
         [OperationContract(IsOneWay = true)]
-        void SendMessage(string message, PeerName from);
+        void SendMessage(string message, PeerName from); // отправка сообщения пользователю
     }
 
+    // передаваемые аргументы, контракт данных WCF
     public class ReceivedDataEventArgs : EventArgs
     {
         public ReceivedDataEventArgs(string data, PeerName from)

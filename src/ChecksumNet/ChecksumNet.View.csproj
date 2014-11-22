@@ -117,9 +117,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Model\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\ChecksumNet.Model\ChecksumNet.Model.csproj">
       <Project>{6765aeb6-706c-4b42-87df-48cd0d3b00fd}</Project>

@@ -47,7 +47,6 @@
   <ItemGroup>
     <Compile Include="Authentication.cs" />
     <Compile Include="Checksum.cs" />
-    <Compile Include="HostData.cs" />
     <Compile Include="IP2PService.cs" />
     <Compile Include="ModelManager.cs" />
     <Compile Include="NetProvider.cs" />
@@ -57,9 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

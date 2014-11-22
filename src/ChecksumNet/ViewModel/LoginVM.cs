@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Input;
-using ChecksumNet.Model;
 using NLog;
 
 namespace ChecksumNet.ViewModel
@@ -10,33 +9,30 @@ namespace ChecksumNet.ViewModel
     {
         #region Members
 
-        private string _username;
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private string _password;
-
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private string _username;
 
         #endregion
 
         #region Constructors   
 
-        public LoginVM() { }
-
-        #endregion 
+        #endregion
 
         #region Methods
 
-        public bool CheckLogin() 
+        public bool CheckLogin()
         {
-            var isLogin = MainViewModel.Instance.Manager.TryLogin(Username, Password);
+            bool isLogin = MainViewModel.Instance.Manager.TryLogin(Username, Password);
             if (!isLogin)
             {
                 MessageBox.Show("Неправильное имя пользователя или пароль.");
                 logger.Info("ОШИБКА. КТО: пользователь {0}. ЧТО: попытка авторизации. РЕЗУЛЬТАТ: неудача", Username);
                 return false;
             }
-            
+
             MainViewModel.Instance.IsLogedIn = true;
-            CloseWindow(); 
+            CloseWindow();
             return true;
         }
 
@@ -44,49 +40,56 @@ namespace ChecksumNet.ViewModel
         {
             OnRequestClose(this, new EventArgs());
         }
+
         #endregion
 
         #region Properties
 
-        public event EventHandler OnRequestClose;
-
         public string Username
         {
             get { return _username; }
-            set { _username = value; OnPropertyChanged("Username"); }
+            set
+            {
+                _username = value;
+                OnPropertyChanged("Username");
+            }
         }
 
         public string Password
         {
             get { return _password; }
-            set { _password = value; OnPropertyChanged("Password"); }           
+            set
+            {
+                _password = value;
+                OnPropertyChanged("Password");
+            }
         }
-                 
+
+        public event EventHandler OnRequestClose;
+
         #endregion
 
         #region Commands
 
         #region Login
 
-        void AuthenticateExecute()
+        public ICommand Authenticate
+        {
+            get { return new RelayCommand(param => AuthenticateExecute(), param => CanAuthenticateExecute()); }
+        }
+
+        private void AuthenticateExecute()
         {
             CheckLogin();
         }
 
-        bool CanAuthenticateExecute()
+        private bool CanAuthenticateExecute()
         {
             return true;
         }
-        public ICommand Authenticate
-        {
-            get { return new RelayCommand(param => this.AuthenticateExecute(), param => this.CanAuthenticateExecute()); }
-        }
-
 
         #endregion
 
         #endregion
-
-
     }
 }

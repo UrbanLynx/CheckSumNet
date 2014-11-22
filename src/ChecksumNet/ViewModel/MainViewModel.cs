@@ -1,33 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using ChecksumNet.Model;
 using ChecksumNet.View;
+using Microsoft.Win32;
 
 namespace ChecksumNet.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
         #region Members
-        
+
         private static volatile MainViewModel _instance;
-        private static object _syncRoot = new Object();
+        private static readonly object _syncRoot = new Object();
 
         private string filename;
-        private bool isLogedIn = false;
-        private ObservableCollection<PeerVM> peerList;
+        private bool isLogedIn;
         private PeerVM localPeer;
+        private ObservableCollection<PeerVM> peerList;
 
         #endregion
 
         #region Constructors
-        private MainViewModel() { }
+
+        private MainViewModel()
+        {
+        }
 
         public static MainViewModel Instance
         {
@@ -40,12 +39,13 @@ namespace ChecksumNet.ViewModel
                         if (_instance == null)
                             _instance = new MainViewModel();
                     }
-                    MainViewModel.Instance.Creator();
+                    Instance.Creator();
                 }
 
                 return _instance;
             }
         }
+
         #endregion
 
         #region Methods
@@ -65,20 +65,19 @@ namespace ChecksumNet.ViewModel
             OnPropertyChanged("PeerList");
         }
 
-        void SetLocalPeer()
+        private void SetLocalPeer()
         {
             LocalPeer = new PeerVM(Manager.GetLocalPeer());
             Manager.OnDataUpdate += localPeer.DataUpdate;
         }
 
-        void AddPeerToList(PeerEntry peerEntry)
+        private void AddPeerToList(PeerEntry peerEntry)
         {
             var newPeer = new PeerVM(peerEntry);
             Manager.OnDataUpdate += newPeer.DataUpdate;
             PeerList.Add(newPeer);
         }
 
-        
         #endregion
 
         #region Properties
@@ -88,25 +87,41 @@ namespace ChecksumNet.ViewModel
         public ObservableCollection<PeerVM> PeerList
         {
             get { return peerList; }
-            set { peerList = value; OnPropertyChanged("PeerList"); }
+            set
+            {
+                peerList = value;
+                OnPropertyChanged("PeerList");
+            }
         }
 
         public PeerVM LocalPeer
         {
             get { return localPeer; }
-            set { localPeer = value; OnPropertyChanged("LocalPeer"); }
+            set
+            {
+                localPeer = value;
+                OnPropertyChanged("LocalPeer");
+            }
         }
 
         public string Filename
         {
             get { return filename; }
-            set { filename = value; OnPropertyChanged("Filename"); }
+            set
+            {
+                filename = value;
+                OnPropertyChanged("Filename");
+            }
         }
-        
+
         public bool IsLogedIn
         {
             get { return isLogedIn; }
-            set { isLogedIn = value; OnPropertyChanged("IsLogedIn"); }
+            set
+            {
+                isLogedIn = value;
+                OnPropertyChanged("IsLogedIn");
+            }
         }
 
         #endregion
@@ -115,7 +130,12 @@ namespace ChecksumNet.ViewModel
 
         #region Login
 
-        void LoginExecute()
+        public ICommand LoginCommand
+        {
+            get { return new RelayCommand(param => LoginExecute(), param => CanLoginExecute()); }
+        }
+
+        private void LoginExecute()
         {
             var vm = new LoginVM();
             var loginWindow = new LoginView
@@ -124,47 +144,47 @@ namespace ChecksumNet.ViewModel
             };
             vm.OnRequestClose += (s, e) => loginWindow.Close();
 
-            loginWindow.ShowDialog(); 
+            loginWindow.ShowDialog();
         }
 
-        bool CanLoginExecute()
+        private bool CanLoginExecute()
         {
             return !IsLogedIn;
-        }
-        public ICommand LoginCommand
-        {
-            get { return new RelayCommand(param => this.LoginExecute(), param => this.CanLoginExecute()); }
         }
 
         #endregion
 
         #region Refresh
 
-        void RefreshExecute()
+        public ICommand RefreshCommand
+        {
+            get { return new RelayCommand(param => RefreshExecute(), param => CanRefreshExecute()); }
+        }
+
+        private void RefreshExecute()
         {
             PeerList = new ObservableCollection<PeerVM>();
             Manager.RefreshHosts();
         }
 
-        bool CanRefreshExecute()
+        private bool CanRefreshExecute()
         {
             return IsLogedIn;
         }
-        public ICommand RefreshCommand
-        {
-            get { return new RelayCommand(param => this.RefreshExecute(), param => this.CanRefreshExecute()); }
-        }
-
-
 
         #endregion
 
         #region Browse
 
-        void BrowseExecute()
+        public ICommand BrowseCommand
         {
-            var dlg = new Microsoft.Win32.OpenFileDialog();
-            var result = dlg.ShowDialog();
+            get { return new RelayCommand(param => BrowseExecute(), param => CanBrowseExecute()); }
+        }
+
+        private void BrowseExecute()
+        {
+            var dlg = new OpenFileDialog();
+            bool? result = dlg.ShowDialog();
 
             if (result == true)
             {
@@ -173,33 +193,28 @@ namespace ChecksumNet.ViewModel
             }
         }
 
-        bool CanBrowseExecute()
+        private bool CanBrowseExecute()
         {
             return IsLogedIn;
         }
-        public ICommand BrowseCommand
-        {
-            get { return new RelayCommand(param => this.BrowseExecute(), param => this.CanBrowseExecute()); }
-        }
-
-        
 
         #endregion
 
         #region About
 
-        void AboutExecute()
+        public ICommand AboutCommand
+        {
+            get { return new RelayCommand(param => AboutExecute(), param => CanAboutExecute()); }
+        }
+
+        private void AboutExecute()
         {
             MessageBox.Show("Программа написана коллективом Мушиц С., Переверзев В., ИУ7-71, 2014г.");
         }
 
-        bool CanAboutExecute()
+        private bool CanAboutExecute()
         {
             return true;
-        }
-        public ICommand AboutCommand
-        {
-            get { return new RelayCommand(param => this.AboutExecute(), param => this.CanAboutExecute()); }
         }
 
         #endregion

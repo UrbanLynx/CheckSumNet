@@ -24,15 +24,16 @@ namespace ChecksumNet.Model
 
     public class Authentication
     {
-        public bool isLogedIn = false;
-        private List<UserInfo> users;
-        private UserInfo logedUser;
+        public bool isLogedIn = false; // авторизован ли пользователь
+        private List<UserInfo> users; // доступные для авторизации данные пользователей
+        private UserInfo logedUser; // данные авторизованного пользоватля
 
         public Authentication()
         {
             DownloadAuthenticationInfo();
         }
 
+        // Авторизация с использованием логина и пароля
         public bool Login(string username, string password)
         {
             logedUser = users.FirstOrDefault(user => (user.Username == username && user.Password == password));
@@ -48,6 +49,7 @@ namespace ChecksumNet.Model
             return logedUser.Username;
         }
 
+        // Загрузка в память доступных для авторизации данных пользователей
         public void DownloadAuthenticationInfo()
         {
             try

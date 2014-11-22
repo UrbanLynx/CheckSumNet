@@ -9,6 +9,7 @@ using NLog;
 
 namespace ChecksumNet.Model
 {
+    // реализация интерфейса равноправного участника сети
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public class P2PService : IP2PService
     {
